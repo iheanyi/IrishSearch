@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CourseActivity" >
+
+        <LinearLayout
+            android:id="@+id/courseLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:visibility="visible" >
+
+            <ListView
+                android:id="@+id/courseListView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:visibility="visible" 
+                android:choiceMode="singleChoice" 
+       			android:clickable="true">
+
+            </ListView>
+            
+            <ProgressBar
+            android:id="@+id/progressBar1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:scaleX="0.1"
+            android:scaleY="0.1"
+            android:indeterminateOnly="true"
+            android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/courseText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Sorry, no classes were found for this section!" 
+                android:visibility="gone"/>
+
+        </LinearLayout>
+</RelativeLayout>

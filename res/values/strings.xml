@@ -1,0 +1,327 @@
+<resources>
+
+    <string name="app_name">IrishClassSearch</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_department">Departments</string>
+    <string name="title_activity_course">Courses</string>
+    <string name="title_activity_section">Sections</string>
+    <string-array name="deptArray">
+		<item>Accountancy</item>
+		<item>Aerospace and Mechanical Engr.</item>
+		<item>African and African-American Stu</item>
+		<item>Africana Studies</item>
+		<item>Air Force-Aerospace Studies</item>
+		<item>American Studies</item>
+		<item>Anthropology</item>
+		<item>Applied and Comp Math and Stats</item>
+		<item>Arabic Language and Literature</item>
+		<item>Architecture</item>
+		<item>Art History</item>
+		<item>Art Studio</item>
+		<item>Art,Art History,and Design (SMC)</item>
+		<item>Arts and Letters (Non-dept.)</item>
+		<item>Arts and Letters - Core</item>
+		<item>Arts and Letters - Honors</item>
+		<item>Arts and Letters Preprofessnal</item>
+		<item>Asian Studies</item>
+		<item>Biological Sciences</item>
+		<item>Biology (SMC)</item>
+		<item>Bus Admin - Accounting/Bus Law</item>
+		<item>Bus Admin - Business Law</item>
+		<item>Bus Admin - Communication</item>
+		<item>Bus Admin - Ethics</item>
+		<item>Bus Admin - Finance</item>
+		<item>Bus Admin - Management</item>
+		<item>Business Administration</item>
+		<item>Business Administration (SMC)</item>
+		<item>Business Administration - UG</item>
+		<item>Catholic Social Tradition</item>
+		<item>Center for Social Concerns</item>
+		<item>Chemical and Biomoecular Engr.</item>
+		<item>Chemistry and Biochemistry</item>
+		<item>Chinese</item>
+		<item>Civil Engineering</item>
+		<item>Classics in Translation</item>
+		<item>College Seminar</item>
+		<item>Communication Arts</item>
+		<item>Communications (SMC)</item>
+		<item>Computer Applications</item>
+		<item>Computer Science (SMC)</item>
+		<item>Computer Science and Engr.</item>
+		<item>Constitutional Studies</item>
+		<item>Dance (SMC)</item>
+		<item>Design</item>
+		<item>EG, SC and Tech Entrepreneurship</item>
+		<item>East Asian Lang and Lit</item>
+		<item>Economics</item>
+		<item>Economics and Econometrics</item>
+		<item>Education</item>
+		<item>Education (SMC)</item>
+		<item>Education, School and Society</item>
+		<item>Electrical Engineering</item>
+		<item>Energy Studies</item>
+		<item>Eng., Science, Tech. and Society</item>
+		<item>Engineering (Non-Departmental)</item>
+		<item>Engineering Science Program</item>
+		<item>English</item>
+		<item>English Language School (SMC)</item>
+		<item>English Literature (SMC)</item>
+		<item>English Writing (SMC)</item>
+		<item>Environmental Geosciences</item>
+		<item>Environmental Studies (SMC)</item>
+		<item>Film, Television, and Theatre</item>
+		<item>Finance</item>
+		<item>First Year Composition</item>
+		<item>First Year of Studies</item>
+		<item>French</item>
+		<item>Gender Studies</item>
+		<item>Gender and Womens Studies</item>
+		<item>German</item>
+		<item>Gerontology (SMC)</item>
+		<item>Global Health - Eck Institute</item>
+		<item>Global Studies (SMC)</item>
+		<item>Graduate Education</item>
+		<item>Greek Language and Literature</item>
+		<item>Hebrew Language and Literature</item>
+		<item>Hesburgh Prg in Public Service</item>
+		<item>History</item>
+		<item>History and Phil. of Science</item>
+		<item>Humanistic Studies (SMC)</item>
+		<item>Humanities Seminar</item>
+		<item>Indiana U. Sch of Med. S. Bend</item>
+		<item>Inst for International Peace Studies</item>
+		<item>Integrated Biomedical Sciences</item>
+		<item>Intercultural Studies (SMC)</item>
+		<item>Internatnl Development Studies</item>
+		<item>Irish Language and Literature</item>
+		<item>Irish Studies</item>
+		<item>Italian</item>
+		<item>Japanese</item>
+		<item>Journalism, Ethics and Democracy</item>
+		<item>Justice Studies (SMC)</item>
+		<item>Korean</item>
+		<item>Latin American Studies</item>
+		<item>Latin Language and Literature</item>
+		<item>Latino Studies</item>
+		<item>Law</item>
+		<item>Literature</item>
+		<item>MBA Bus Communications</item>
+		<item>MBA Business Ethics</item>
+		<item>MBA Business Law</item>
+		<item>MBA Chicago</item>
+		<item>MBA Executive Program</item>
+		<item>MBA General</item>
+		<item>MBA Local</item>
+		<item>Management</item>
+		<item>Management - Consulting</item>
+		<item>Management - Entrepreneurship</item>
+		<item>Management - IT</item>
+		<item>Marketing</item>
+		<item>Master of Business Admin.</item>
+		<item>Master of Nonprofit Admin.</item>
+		<item>Master of Science in Admin.</item>
+		<item>Mathematics</item>
+		<item>Medieval Institute</item>
+		<item>Mid East Lit in Transl and Hist</item>
+		<item>Military Science (Army ROTC)</item>
+		<item>Modern and Classical Languages</item>
+		<item>Music</item>
+		<item>Naval Science (ROTC)</item>
+		<item>Near East Lit./Culture in Engl</item>
+		<item>Nursing (SMC)</item>
+		<item>Patent Law</item>
+		<item>Philosophy</item>
+		<item>Physical Education</item>
+		<item>Physics</item>
+		<item>Political Science</item>
+		<item>Political Science (SMC)</item>
+		<item>Portuguese</item>
+		<item>Poverty Studies</item>
+		<item>Pre-College Summer Experience</item>
+		<item>Program of Liberal Studies</item>
+		<item>Psychology</item>
+		<item>Psychology (SMC)</item>
+		<item>Registrars Office</item>
+		<item>Religion and Literature</item>
+		<item>Religious Studies (SMC)</item>
+		<item>Romance Lang and Lit</item>
+		<item>Russian</item>
+		<item>Science (Non-departmental)</item>
+		<item>Science Preprofessional</item>
+		<item>Science, Technology and Values</item>
+		<item>Self Designed Major (SMC)</item>
+		<item>So. Bend Cen for Medical Educ.</item>
+		<item>Social Work (SMC)</item>
+		<item>Sociology</item>
+		<item>Spanish</item>
+		<item>St. Marys</item>
+		<item>Sustainability</item>
+		<item>Syriac Language and Literature</item>
+		<item>Theatre (SMC)</item>
+		<item>Theology</item>
+		<item>Upward Bound Program</item>
+		<item>Womens Studies (SMC)</item>
+		<item>Writing and Rhetoric</item>
+    </string-array>
+    <string-array name="keyArray">
+		<item>ACCT</item>
+		<item>AME</item>
+		<item>AFAM</item>
+		<item>AFST</item>
+		<item>AS</item>
+		<item>AMST</item>
+		<item>ANTH</item>
+		<item>ACMS</item>
+		<item>MEAR</item>
+		<item>ARCH</item>
+		<item>ARHI</item>
+		<item>ARST</item>
+		<item>ART</item>
+		<item>AL</item>
+		<item>CORE</item>
+		<item>ALHN</item>
+		<item>ALPP</item>
+		<item>ASIA</item>
+		<item>BIOS</item>
+		<item>BIO</item>
+		<item>BAAC</item>
+		<item>BALW</item>
+		<item>BACM</item>
+		<item>BAET</item>
+		<item>BAFI</item>
+		<item>BAMG</item>
+		<item>BA</item>
+		<item>BUAD</item>
+		<item>BAUG</item>
+		<item>CST</item>
+		<item>CSC</item>
+		<item>CBE</item>
+		<item>CHEM</item>
+		<item>EALC</item>
+		<item>CE</item>
+		<item>CLAS</item>
+		<item>CSEM</item>
+		<item>CA</item>
+		<item>COMM</item>
+		<item>CAPP</item>
+		<item>CPSC</item>
+		<item>CSE</item>
+		<item>CNST</item>
+		<item>DANC</item>
+		<item>DESN</item>
+		<item>ESTM</item>
+		<item>LLEA</item>
+		<item>ECON</item>
+		<item>ECOE</item>
+		<item>EDU</item>
+		<item>EDUC</item>
+		<item>ESS</item>
+		<item>EE</item>
+		<item>ENER</item>
+		<item>ESTS</item>
+		<item>EG</item>
+		<item>EGSC</item>
+		<item>ENGL</item>
+		<item>ELS</item>
+		<item>ENLT</item>
+		<item>ENWR</item>
+		<item>ENVG</item>
+		<item>ENVS</item>
+		<item>FTT</item>
+		<item>FIN</item>
+		<item>FYC</item>
+		<item>FYS</item>
+		<item>ROFR</item>
+		<item>GSC</item>
+		<item>GWS</item>
+		<item>GE</item>
+		<item>GERO</item>
+		<item>GH</item>
+		<item>GLST</item>
+		<item>GRED</item>
+		<item>CLGR</item>
+		<item>MEHE</item>
+		<item>HESB</item>
+		<item>HIST</item>
+		<item>HPS</item>
+		<item>HUST</item>
+		<item>HUM</item>
+		<item>IUSM</item>
+		<item>IIPS</item>
+		<item>IBMS</item>
+		<item>ICS</item>
+		<item>IDS</item>
+		<item>IRLL</item>
+		<item>IRST</item>
+		<item>ROIT</item>
+		<item>EALJ</item>
+		<item>JED</item>
+		<item>JUST</item>
+		<item>EALK</item>
+		<item>LAST</item>
+		<item>CLLA</item>
+		<item>ILS</item>
+		<item>LAW</item>
+		<item>LIT</item>
+		<item>MBCM</item>
+		<item>MBET</item>
+		<item>MBLW</item>
+		<item>MBAC</item>
+		<item>MBAE</item>
+		<item>MBGR</item>
+		<item>MBAL</item>
+		<item>MGT</item>
+		<item>MGTC</item>
+		<item>MGTE</item>
+		<item>MGTI</item>
+		<item>MARK</item>
+		<item>MBA</item>
+		<item>MNA</item>
+		<item>MSA</item>
+		<item>MATH</item>
+		<item>MI</item>
+		<item>MELC</item>
+		<item>MSL</item>
+		<item>MODL</item>
+		<item>MUS</item>
+		<item>NSCI</item>
+		<item>CLST</item>
+		<item>NURS</item>
+		<item>PATL</item>
+		<item>PHIL</item>
+		<item>PE</item>
+		<item>PHYS</item>
+		<item>POLS</item>
+		<item>POSC</item>
+		<item>ROPO</item>
+		<item>PS</item>
+		<item>PCSE</item>
+		<item>PLS</item>
+		<item>PSY</item>
+		<item>PSYC</item>
+		<item>REG</item>
+		<item>RLT</item>
+		<item>RLST</item>
+		<item>LLRO</item>
+		<item>RU</item>
+		<item>SC</item>
+		<item>SCPP</item>
+		<item>STV</item>
+		<item>SDM</item>
+		<item>SBCM</item>
+		<item>SW</item>
+		<item>SOC</item>
+		<item>ROSP</item>
+		<item>SMC</item>
+		<item>SUS</item>
+		<item>CLSS</item>
+		<item>THTR</item>
+		<item>THEO</item>
+		<item>UB</item>
+		<item>WOST</item>
+		<item>WR</item>
+    </string-array>
+
+</resources>

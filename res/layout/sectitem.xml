@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/sectView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Section Number (30/40)" 
+           	android:paddingTop="16dp"
+    	android:paddingBottom="4dp"
+    	android:paddingLeft="16dp"
+    	android:paddingRight="16dp"
+	    android:clipToPadding="false"/>
+
+        <TextView
+            android:id="@+id/descView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Instructor + Time + Location + CRN" 
+           	android:paddingTop="4dp"
+    	android:paddingBottom="4dp"
+    	android:paddingLeft="16dp"
+	    android:clipToPadding="false"/>
+
+    </LinearLayout>
+
+</LinearLayout>

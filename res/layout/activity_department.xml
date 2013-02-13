@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DepartmentActivity" >
+
+ 	<LinearLayout
+ 	    	android:id="@+id/deptLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ListView
+                android:id="@+id/deptListView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:fastScrollEnabled="true" >
+            </ListView>
+          <!-- <com.google.ads.AdView android:id="@+id/ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			ads:adSize="BANNER"
+            ads:adUnitId="a150c6c4f5c3177"
+            ads:loadAdOnCreate="true"/> -->
+            
+        </LinearLayout>
+</RelativeLayout>

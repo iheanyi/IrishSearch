@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.iheanyiekechukwu.irishsearch"
+    android:versionCode="8"
+    android:versionName="2.1" >
+
+    <uses-sdk
+        android:minSdkVersion="8" 
+        android:targetSdkVersion="14" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:logo="@drawable/logo_solo"
+        android:label="Irish Class Search"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.iheanyiekechukwu.irishsearch.DepartmentActivity"
+            android:label="Irish Class Search" 
+            android:windowSoftInputMode="stateHidden|adjustPan" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.iheanyiekechukwu.irishsearch.CourseActivity"
+            android:label="@string/title_activity_course"
+            android:parentActivityName="com.iheanyiekechukwu.irishsearch.DepartmentActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.iheanyiekechukwu.irishsearch.DepartmentActivity" />
+        </activity>
+        <activity
+            android:name="com.iheanyiekechukwu.irishsearch.SectionActivity"
+            android:label="@string/title_activity_section"
+            android:parentActivityName="com.iheanyiekechukwu.irishsearch.CourseActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.iheanyiekechukwu.irishsearch.CourseActivity" />
+        </activity>
+    </application>
+
+</manifest>

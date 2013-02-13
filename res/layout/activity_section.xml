@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".SectionActivity" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/nameText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="14dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:text="Course Name and Shit Here" 
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical" >
+
+                        <ScrollView
+                            android:id="@+id/scrollView2"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1" >
+
+                            <TextView
+                                android:id="@+id/courseDescriptionText"
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:paddingBottom="4dp"
+                                android:paddingTop="4dp"
+                    			android:paddingLeft="16dp"
+                    			android:paddingRight="16dp"
+                                android:text="(Course description here)"
+                                android:textAppearance="?android:attr/textAppearanceMedium" />
+                        </ScrollView>
+
+                        <ListView
+                            android:id="@+id/sectionListView"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1" >
+                        </ListView>
+                    </LinearLayout>
+
+            </LinearLayout>
+
+</RelativeLayout>
