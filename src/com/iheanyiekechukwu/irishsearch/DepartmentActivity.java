@@ -54,10 +54,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.Tracker;
+import android.widget.Toast;
 
 public class DepartmentActivity extends Activity implements OnItemClickListener {
 
@@ -73,9 +70,9 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
 	private Context context;
 
 	// Constant page for ClassSearchServlet
-	private static final String CLASS_PAGE = "https://wlsx-prod.nd.edu/reg/srch/ClassSearchServlet";
-	private static final String DESCRIPTION_PAGE = "https://wlsx-prod.nd.edu/reg/srch/ClassSearchServlet?CRN=";
-	private static final String DESCRIPTION_PAGE_TERM = "&TERM=201220";
+	private static final String CLASS_PAGE = "https://class-search.nd.edu/reg/srch/ClassSearchServlet";
+	private static final String DESCRIPTION_PAGE = "https://class-search.nd.edu/reg/srch/ClassSearchServlet?CRN=";
+	private static final String DESCRIPTION_PAGE_TERM = "&TERM=201310";
 	
 	private ProgressDialog prog;
 	private ArrayList<Course> courseObjectList;
@@ -123,9 +120,6 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
         deptListView.setFastScrollEnabled(true);
         
         Context mCtx = this; // Get current context.
-        GoogleAnalytics myInstance = GoogleAnalytics.getInstance(mCtx.getApplicationContext());
-        Tracker newTracker = myInstance.getTracker("UA-36709787-3"); // Placeholder tracking ID.
-        myInstance.setDefaultTracker(newTracker); // Set newTracker as the default tracker globally.
 
         deptListView.setOnItemClickListener(this);
 	}
@@ -225,7 +219,7 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
            //Toast.makeText(context, "HTTP PAGE Created", Toast.LENGTH_SHORT);
 
 	        List<NameValuePair> pparams = new ArrayList<NameValuePair>();
-	        pparams.add(new BasicNameValuePair("TERM", "201220"));
+	        pparams.add(new BasicNameValuePair("TERM", "201310"));
 	        pparams.add(new BasicNameValuePair("DIVS", "A"));
 	        pparams.add(new BasicNameValuePair("CAMPUS", "M"));
 	        pparams.add(new BasicNameValuePair("SUBJ", deptKey));
@@ -235,7 +229,7 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
 	        UrlEncodedFormEntity ent;
 			ent = new UrlEncodedFormEntity(pparams);
 			//ent.setContentEncoding(HTTP.ISO_8859_1);
-			//ent.setContentType("application/x-www-form-urlencoded");
+			ent.setContentType("application/x-www-form-urlencoded");
 			
 	        post.setEntity(ent);
     		HttpResponse rp = client.execute(post);
@@ -244,6 +238,8 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
     		if(rp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 	        HttpEntity result = rp.getEntity();
 	        pageHTML = EntityUtils.toString(result);
+	        
+	        Toast.makeText(context, pageHTML.length(), Toast.LENGTH_SHORT);
     		}
 
         }
@@ -298,13 +294,11 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
 	  @Override
 	  public void onStart() {
 	    super.onStart();
-	    EasyTracker.getInstance().activityStart(this); // Add this method.
 	  }
 
 	  @Override
 	  public void onStop() {
 	    super.onStop();
-	    EasyTracker.getInstance().activityStop(this); // Add this method.
 	  }
 
 
@@ -390,7 +384,14 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
 			max_spots = cells.get(4).text();
 			course = cells.get(0).text();
 			credits = cells.get(2).text();
-			location = cells.get(13).text();
+			if(cells.get(13) != null) {
+				location = cells.get(13).text();
+				Log.d("DepartmentActivity", location);
+
+			} else {
+				Log.d("DepartmentActivity", "Null cell?");
+				location = "Unavailable";
+			}
 			
 			String[] values = course.split(" ");
 			
@@ -449,11 +450,13 @@ public class DepartmentActivity extends Activity implements OnItemClickListener 
     		courseExtras.add(courseObjectList.get(i));
     	}
     	
+    	//Toast.makeText(context, "Starting New Activity . . . ", Toast.LENGTH_SHORT).show();
+    	
     	intent.putExtra("courseList", courseExtras);
     	intent.putExtra("department", this.deptSelect);
     	this.startActivity(intent);
    
-	}
+	} 
 
 	}
 	

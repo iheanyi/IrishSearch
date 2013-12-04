@@ -23,10 +23,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.Tracker;
-
 @SuppressLint("NewApi")
 public class SectionActivity extends Activity {
 	
@@ -108,9 +104,7 @@ public class SectionActivity extends Activity {
         sectionListView.setFastScrollEnabled(true);
         
         Context mCtx = this;  // Get current context.
-        EasyTracker.getInstance().setContext(mCtx);  // setContext will use mCtx to retrieve the application context.
-        GoogleAnalytics myInstance = GoogleAnalytics.getInstance(mCtx.getApplicationContext());
-        Tracker myDefault = myInstance.getDefaultTracker();
+
         // EasyTracker is now ready for use.
         //sectionListView.setOnItemClickListener(this);
 	    

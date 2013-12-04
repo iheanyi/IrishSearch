@@ -51,9 +51,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.ads.AdView;
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.Tracker;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class CourseActivity extends Activity implements OnClickListener, OnItemClickListener {
@@ -75,8 +72,8 @@ public class CourseActivity extends Activity implements OnClickListener, OnItemC
 	private Context context;
 	private Intent i;
 	
-	private static final String DESCRIPTION_PAGE = "https://wlsx-prod.nd.edu/reg/srch/ClassSearchServlet?CRN=";
-	private static final String DESCRIPTION_PAGE_TERM = "&TERM=201220";
+	private static final String DESCRIPTION_PAGE = "https://class-search.nd.edu/reg/srch/ClassSearchServlet?CRN=";
+	private static final String DESCRIPTION_PAGE_TERM = "&TERM=201310";
 	
 	private Course selected;
 
@@ -122,9 +119,7 @@ public class CourseActivity extends Activity implements OnClickListener, OnItemC
         courseListView.setOnItemClickListener(this);
         
         Context mCtx = this;  // Get current context.
-        EasyTracker.getInstance().setContext(mCtx);  // setContext will use mCtx to retrieve the application context.
-        GoogleAnalytics myInstance = GoogleAnalytics.getInstance(mCtx.getApplicationContext());
-        Tracker myDefault = myInstance.getDefaultTracker();
+
         // EasyTracker is now ready for use.
         
     	Iterator<Course> it = list.iterator();
@@ -332,7 +327,6 @@ public class CourseActivity extends Activity implements OnClickListener, OnItemC
 			String courseCRN = firstSection.getCrn();
 			String fullURL = DESCRIPTION_PAGE + courseCRN + DESCRIPTION_PAGE_TERM;
 			
-			//Toast.makeText(context, fullURL, Toast.LENGTH_SHORT);
 			DetailTask dTask = new DetailTask();
 			dTask.execute(fullURL);
 		}
@@ -349,7 +343,6 @@ public class CourseActivity extends Activity implements OnClickListener, OnItemC
 
 	private HttpClient createHttpClient()
 	{
-		//Toast.makeText(context, "HTTP Client Created", Toast.LENGTH_SHORT);
 	    HttpParams params = new BasicHttpParams();
 	    HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 	    HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
