@@ -316,6 +316,8 @@ private fun DetailSection(
             enter = fadeIn(tween(180, easing = DetailEaseOut)), exit = fadeOut(tween(140, easing = DetailEaseOut))) {
             if (label == "Corequisites" && inPlan != null && references.isNotEmpty()) {
                 CorequisiteRequirementBody(display, references, inPlan, onRelatedCourse)
+            } else if (label == "Cannot have taken") {
+                CannotHaveTakenRequirementBody(display, subjects, onRelatedCourse)
             } else RequirementTextBody(label, display, subjects, onRelatedCourse)
         }
     }
@@ -409,6 +411,37 @@ private fun LinkedRequirementText(content: String, references: List<CourseRefere
         append(content.substring(next))
     }
     Text(text, style = MaterialTheme.typography.bodyMedium.copy(lineHeight = MaterialTheme.typography.bodyLarge.lineHeight))
+}
+
+@Composable
+private fun CannotHaveTakenRequirementBody(
+    display: String,
+    subjects: Set<String>,
+    onRelatedCourse: (String) -> Unit,
+) {
+    val lines = courseReferenceLines(display, subjects)
+    val codes = plainCourseListCodes(lines)
+    Surface(Modifier.fillMaxWidth().padding(bottom = AppSpacing.Inline),
+        shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(Modifier.padding(AppSpacing.Row), verticalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
+            if (codes != null) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AppSpacing.Inline),
+                    verticalArrangement = Arrangement.spacedBy(AppSpacing.Inline)) {
+                    codes.forEach { code ->
+                        AssistChip(onClick = { onRelatedCourse(code) }, label = { Text(code) },
+                            modifier = Modifier.heightIn(min = 48.dp).semantics {
+                                contentDescription = "Excluded course $code. View sections."
+                            }, shape = MaterialTheme.shapes.small,
+                            colors = AssistChipDefaults.assistChipColors(labelColor = MaterialTheme.colorScheme.primary))
+                    }
+                }
+            } else lines.forEach { line ->
+                if (line.text.trimStart().startsWith("*")) Text(line.text,
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                else LinkedRequirementText(line.text, line.references, onRelatedCourse)
+            }
+        }
+    }
 }
 
 /** Keeps the original AND/OR wording, replacing each code with one interactive status token. */

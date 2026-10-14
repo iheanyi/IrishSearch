@@ -181,3 +181,24 @@ Device: Pixel 8 Pro (Husky), 448dp portrait width. Version 3.0 / code 10, minSdk
 
 
 Final parser-build smoke: after the00:30:27 install, CSE40657 still renders the same nested All of/One of structure. Tapping CSE44648 loads the same two Fall2026 sections; system Back dismisses the sheet. Evidence: `/private/tmp/irish-final-parser-prereq.png`, `/private/tmp/irish-final-parser-related.png`, and `/private/tmp/irish-final-parser-related.xml`. Final font scale1.0 and night=yes verified. Device released after this narrow smoke; no production files changed during device QA.
+
+
+## Cannot-have-taken follow-up: October 14, 2026
+
+The user's live example was CSE 10101 section 01, Elements of Computing I, Fall 2026, CRN 12427. Its exclusion list is ACMS 24216, CDT 30010, and ITAO 30210. Design reference: the restrained grouping in [Starling eligibility](https://mobbin.com/screens/353728f1-c56a-4096-9f8b-7312006f6efb), adapted to native Material 3 roles and controls.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Three detached underlined lines under Cannot have taken, unlike neighboring structured requirements | One neutral tonal panel with wrapping outlined course chips, each 48dp tall, and consistent inset/gaps | Groups exclusions clearly and gives each linked course an obvious touch target without implying positive eligibility or unsupported completion status |
+
+The implementation chips only lists made entirely of course references. Prose and operator expressions retain their linked source wording inside the panel. It does not introduce All of/One of or pass/fail labels for exclusions.
+
+Scoped Husky acceptance passed on the APK installed at **2026-10-14 08:03:29**, with font scale **1.0** and night mode **yes** unchanged:
+
+- Expanded panel shows all three chips; collapse/re-expand works. UI bounds measure 144px at 3px/dp = 48dp per chip.
+- ACMS 24216 opens the Fall 2026 related-course sheet. The catalog returns zero sections and the sheet explicitly says No sections found for Fall Semester 2026. System Back returns to the source course.
+- Enrollment restrictions still expands independently, showing Programs: Data Science and the original Main campus restriction.
+- At scroll bottom the panel is fully above the Add to schedule FAB with visible separation. FAB opens the correct CSE 10101 Add sheet; Back dismisses it. No records were created or changed.
+- Evidence: `/private/tmp/irish-exclusion-before.png`, `/private/tmp/irish-exclusion-after.png`, `/private/tmp/irish-exclusion-related.png`, `/private/tmp/irish-exclusion-neighbor-bottom.png`, and matching XML files.
+
+This incremental build passed assembleDebug, **38 unit tests (0 failures)**, and lintDebug per the coordinating agent. The earlier 36-test combined build remains the historical result for the preceding parser fix. No additional light/large-text claims are made for this scoped follow-up.

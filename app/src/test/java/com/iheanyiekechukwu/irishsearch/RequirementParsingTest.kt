@@ -77,6 +77,24 @@ class RequirementParsingTest {
             lines.flatMap { line -> line.references.map { it.code } })
     }
 
+    @Test fun exclusionChipsUseTheActualCse10101CourseOnlyList() {
+        val source = "ACMS 24216\nCDT 30010\nITAO 30210"
+        val lines = courseReferenceLines(source, setOf("ACMS", "CDT", "ITAO"))
+        assertEquals(listOf("ACMS 24216", "CDT 30010", "ITAO 30210"), plainCourseListCodes(lines))
+        assertEquals(source.lines(), lines.map { it.text })
+    }
+
+    @Test fun exclusionOperatorsGroupingProseAndNotesKeepLiteralPresentation() {
+        val sources = listOf("CSE 10001 or\n10101*", "(CSE 10001 and 10101) or MATH 10850",
+            "Cannot have received credit for CSE 10001", "CSE 10001*\n* May be taken concurrently.")
+        sources.forEach { source ->
+            val lines = courseReferenceLines(source, setOf("CSE", "MATH"))
+            assertNull(source, plainCourseListCodes(lines))
+            assertEquals(source.lines(), lines.map { it.text })
+        }
+        assertEquals("CSE 10101", courseReferenceLines(sources.first(), setOf("CSE"))[1].references.single().code)
+    }
+
     @Test fun inheritanceRestoresTheOuterSubjectAfterParentheses() {
         val source = "CSE 10001 or (MATH 10850 and 10860) or 10101"
         assertEquals(listOf("CSE 10001", "MATH 10850", "MATH 10860", "CSE 10101"),

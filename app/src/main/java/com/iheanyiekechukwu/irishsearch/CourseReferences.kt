@@ -77,6 +77,17 @@ internal fun courseReferenceLines(text: String, subjects: Set<String>): List<Cou
     appendPending()
 }
 
+/** Only one course per line, with no operators or notes, can become an unordered chip list. */
+internal fun plainCourseListCodes(lines: List<CourseReferenceLine>): List<String>? {
+    if (lines.isEmpty()) return null
+    return lines.map { line ->
+        val reference = line.references.singleOrNull() ?: return null
+        if (line.text.substring(0, reference.range.first).isNotBlank() ||
+            line.text.substring(reference.range.last + 1).isNotBlank()) return null
+        reference.code
+    }
+}
+
 internal sealed interface CourseRequirementExpression {
     data class Course(val code: String, val markedWithAsterisk: Boolean = false) : CourseRequirementExpression
     data class AllOf(val children: List<CourseRequirementExpression>) : CourseRequirementExpression
