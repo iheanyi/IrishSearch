@@ -32,6 +32,15 @@ The existing listing is **Irish Class Search**, package `com.iheanyiekechukwu.ir
 - Signed version 3.0 (10) built successfully; JAR signature verification passed. AAB SHA-256: `f0ba541b9d945c06093277ddc6cb8cc6ec3e1edffb72542ce33753c69190f4a4`.
 - Google Play processed and accepted bundle 10 (3.0), min API 24 / target API 36, into the new internal-test draft. Review showed no blocking errors and three warnings: no testers selected yet, no deobfuscation mapping (this build is not obfuscated), and no native debug symbols for dependency libraries. Final rollout status must be confirmed separately.
 
+## Internal rollout completed: October 14, 2026
+
+- With the owner's explicit approval, created the reusable **IrishSearch internal testers** email list containing one tester and selected it only for this app's internal track. The existing license-testers list remains unselected.
+- Published **3.0 (10) — First internal test**. Console reports the track **Active** and the release **Available to internal testers**, **Not reviewed**. This is an internal release, not production publication or policy approval.
+- Tester enrollment: https://play.google.com/apps/internaltest/4701731374736793458
+- Console uses the temporary name `com.iheanyi.notredame.classsearch (unreviewed)`. Publishing confirmation says propagation usually takes up to one hour, occasionally longer.
+- The missing-testers warning is resolved. Two nonblocking warnings remain: no deobfuscation file and no native debug symbols.
+- Play-delivered installation has not yet been validated. The installed debug build uses a different signing certificate; export the current library before removing it to install the Play-signed build, then restore the backup. Do not clear or uninstall either existing package without protecting its data.
+
 ## Declaration preparation
 
 These are review notes based on the current source, not submitted declarations:

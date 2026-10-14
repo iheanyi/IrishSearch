@@ -5,7 +5,7 @@
 - Integrated debug build, unit tests, lint and release bundle pass. A subsequent short-event PNG label correction was packaged in debug/release builds and verified against the regenerated native export (`/private/tmp/irish-new-export-final.png`): the 15-minute personal block now has a legible label.
 - **73 unit tests, zero failures:** existing parser/planning coverage plus commitments, seat-check behavior, portable backup and calendar export.
 - Lint: zero errors, four maintenance suggestions (Gradle version and Kotlin extension helpers). API 24 notification-settings fallback is explicitly guarded.
-- Release bundle is unsigned pending new-listing upload-key setup. The Gradle signing configuration accepts all four signing environment variables or none; partial configuration fails.
+- The initial release bundle was unsigned. Subsequently, the upload-key-signed version 3.0 (10) passed signature verification and was accepted by Google Play; see the rollout addendum below. The Gradle signing configuration accepts all four signing environment variables or none; partial configuration fails.
 - Release manifest and AAB DEX/resource scan exclude the debug receiver, debug worker, fixture CRN, fixture title, and fixture notification title.
 
 ## Real Android notification execution
@@ -44,3 +44,9 @@ The owner chose `com.iheanyi.notredame.classsearch` after confirming the origina
 ## Native UI acceptance
 
 The new API 34 package passed native light/dark, large-text, keyboard, commitment overlap/edit, 15-minute calendar target, backup save/restore, calendar export, and image-sharing checks. The exported calendar contains five recurring weekday events including the personal commitment, with Indianapolis time-zone transitions. See `student-ux-review.md` for exact screenshots and limits. Actual TalkBack speech, API 24, tablet/landscape and several secondary native branches remain untested; automated/source checks are reported separately.
+
+## Google Play internal rollout addendum
+
+On October 14, 2026, the new listing enrolled in Google-managed Play App Signing and accepted the signed 3.0 (10) bundle. After the owner approved its reusable tester list, the release was published to internal testing. Console reports **Active**, **Available to internal testers**, and **Not reviewed**. Evidence: `/private/tmp/irishsearch-internal-release-live.jpg`. The upload key and password are backed up locally and in 1Password; public certificate fingerprints and the artifact hash are recorded in `play-release.md`.
+
+This confirms console acceptance and internal distribution only. Installation and runtime checks on Google's delivered binary remain pending. Preserve the installed debug app's library before replacing it because its signing certificate differs from the Play-signed version.
