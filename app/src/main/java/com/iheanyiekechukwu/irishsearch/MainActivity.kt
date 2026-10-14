@@ -298,7 +298,7 @@ private fun IrishSearchScreen(
                                     showAppMenu = false
                                     transfers.openBackup()
                                 })
-                                DropdownMenuItem(text = { Text("Privacy") }, onClick = {
+                                DropdownMenuItem(text = { Text("Privacy policy") }, onClick = {
                                     showAppMenu = false
                                     showPrivacy = true
                                 })
@@ -429,14 +429,32 @@ private fun IrishSearchScreen(
     if (showPrivacy) {
         AlertDialog(
             onDismissRequest = { showPrivacy = false },
-            title = { Text("Privacy") },
+            title = { Text("Privacy policy") },
             text = {
                 Column(Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
-                    Text("IrishSearch does not require an account and contains no ads or analytics.")
-                    Text("Searches and section-detail requests go directly from your phone to Notre Dame’s public PATH class search. The university receives the request and may process your IP address under its own policies.")
-                    Text("Saved classes, schedules, personal commitments, and seat-alert settings stay on your phone. You can export backups, calendars, and schedule images to a location or app you choose. Those exported files remain there after uninstall; the app’s local data is removed. Seat alerts make periodic requests for watched sections while a network is available and the battery is not low.")
-                    Text("If you open the bookstore, your browser visits its website. IrishSearch does not receive your bookstore activity.")
+                    Text("Last updated: October 14, 2026", style = MaterialTheme.typography.bodySmall)
+                    Text("IrishSearch is an independent Android app by Iheanyi Ekechukwu for browsing Notre Dame’s public class listings and planning schedules. It does not require an account and contains no advertising or analytics SDKs.")
+                    Text("Information sent when you browse", style = MaterialTheme.typography.titleSmall)
+                    Text("Loading semesters, searching classes, and opening section details sends HTTPS requests directly from your phone to Notre Dame’s public PATH class search at classsearch.nd.edu. Requests can include your selected semester, subject, search words, filters, instructor query, course code, and section number. The university also receives your IP address and technical request details.")
+                    Text("IrishSearch does not route these requests through a developer-operated server, receive university credentials, or access private student records. Notre Dame controls its service and its own data handling, retention, and deletion practices; the developer cannot delete its request logs or guarantee how long it retains them.")
+                    Text("Information stored on your phone", style = MaterialTheme.typography.titleSmall)
+                    Text("Saved classes, schedule names and contents, personal commitments, latest seat-check status, and seat-alert choices are stored in the app’s private storage. IrishSearch does not upload your library to a developer-operated server. Android backup is disabled. You can remove saved items in the app; clearing the app’s storage in Android settings or uninstalling it removes all its local data.")
+                    Text("If you turn on seat alerts, Android periodically checks watched sections against PATH while a network is available and the battery is not low. These requests include the watched course and section identifiers. You can turn alerts off for any section. Notification permission is requested when you enable alerts. Delivery depends on Android scheduling and PATH availability.")
+                    Text("Files you export or restore", style = MaterialTheme.typography.titleSmall)
+                    Text("Backups, calendars, and schedule images can contain course choices, schedule names, and personal commitments. Android asks you to choose a destination or receiving app. A cloud storage provider or receiving app handles the file under its own policies; IrishSearch does not upload it to a developer-operated server. Exported files remain at their destination after uninstall. Delete them using the provider or app where you saved them. Calendar exports are snapshots, not live synchronization.")
+                    Text("Restoring reads only the backup file you select and adds missing records to your phone. Existing records are kept and alerts start off for newly imported classes.")
+                    Text("Bookstore links", style = MaterialTheme.typography.titleSmall)
+                    Text("Checking textbooks opens the Notre Dame bookstore in your browser. The bookstore and browser handle the visit under their own policies. IrishSearch does not receive your bookstore activity.")
+                    Text("Contact and changes", style = MaterialTheme.typography.titleSmall)
+                    Text("For questions about IrishSearch or this policy, use the project’s GitHub issues page. Issues are public, so do not include private information. Policy changes are published in the repository and reflected in future app updates.")
+                    TextButton(onClick = {
+                        runCatching { openBookstore("https://github.com/iheanyi/IrishSearch/issues") }
+                            .onFailure {
+                                showPrivacy = false
+                                notify("Couldn't open GitHub. Visit github.com/iheanyi/IrishSearch/issues in your browser.")
+                            }
+                    }) { Text("Privacy questions on GitHub") }
                 }
             },
             confirmButton = { TextButton(onClick = { showPrivacy = false }) { Text("Done") } },

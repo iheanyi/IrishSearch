@@ -50,3 +50,11 @@ The new API 34 package passed native light/dark, large-text, keyboard, commitmen
 On October 14, 2026, the new listing enrolled in Google-managed Play App Signing and accepted the signed 3.0 (10) bundle. After the owner approved its reusable tester list, the release was published to internal testing. Console reports **Active**, **Available to internal testers**, and **Not reviewed**. Evidence: `/private/tmp/irishsearch-internal-release-live.jpg`. The upload key and password are backed up locally and in 1Password; public certificate fingerprints and the artifact hash are recorded in `play-release.md`.
 
 This confirms console acceptance and internal distribution only. Installation and runtime checks on Google's delivered binary remain pending. Preserve the installed debug app's library before replacing it because its signing certificate differs from the Play-signed version.
+
+## Production build 11 privacy follow-up
+
+The production audit found that the existing in-app privacy text was a summary without a contact mechanism. Build 11 replaces it with the complete scrollable policy, developer identity, HTTPS/request details, local and exported data deletion guidance, university-retention limitations and a GitHub inquiries link. The signed release bundle, release vital lint and debug build pass; JAR signature verification reports `jar verified`. Google Play accepted build 11 into the saved production draft.
+
+Husky was dozing on its launcher before validation. A data-preserving `adb install -r` succeeded. The privacy dialog was inspected at its top and after scrolling to its contact section: readable wrapped text, consistent padding, reachable contact button, and a fixed accessible Done action. Evidence: `/private/tmp/irish-prod-privacy-top.png`, `/private/tmp/irish-prod-privacy-bottom.png`. Returned Husky to its home screen and sleep. No library mutation, app uninstall, font change, or notification-setting change was performed. The contact URL's browser launch was not tested.
+
+The current device catalog request failed to resolve `classsearch.nd.edu` during this check. This is not recorded as a successful live-search validation. It does not change the earlier functional evidence; production installation and live requests on Google's delivered binary remain pending.

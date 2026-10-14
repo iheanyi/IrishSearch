@@ -43,6 +43,16 @@ The existing listing is **Irish Class Search**, package `com.iheanyiekechukwu.ir
 
 ## Declaration preparation
 
+### Production preparation update: October 14, 2026
+
+- Owner requested a production upload. Promoted the internal artifact into production track `4697998478832069569`, then replaced it with **3.0 (11)** to include the complete in-app privacy policy and contact mechanism. Console processed and accepted the signed bundle and confirms the draft **3.0 (11) — First production release** is saved. It has not been submitted for production review or published.
+- Build 11 AAB SHA-256: `21a1af3590412e4eda299c947d6a4d043b40727133ee561c826e2d2732d42d65`. Release build, release vital lint, debug build and JAR signature verification passed.
+- Saved the default store listing with descriptions, accepted shamrock icon, feature graphic and three unchanged native screenshots from `docs/play-store/`. Console reports **Ready to send for review**. The icon and feature graphic are labeled AI-created; the authentic screenshots are not.
+- Saved financial features (none), health features (none), ads (none), unrestricted sign-in access, advertising ID (not used), government affiliation (none), and the public privacy policy URL: https://github.com/iheanyi/IrishSearch/blob/codex/play-policy-2026/PRIVACY.md . This branch must remain accessible until the URL is migrated to a permanent site/default-branch page.
+- Data safety is drafted but cannot be submitted until target audience is completed. Disclosures: app interactions and in-app search history collected/shared for app functionality, required for catalog requests, without claiming ephemeral server processing; HTTPS in transit; no accounts; no verified remote deletion mechanism. Local schedules and user-selected exports are distinguished from PATH request data. Review reasoning against Google's [Data safety definitions](https://support.google.com/googleplay/android-developer/answer/10787469) if server practices or features change.
+- Pending owner answers: launch countries, public support email, and intended age groups. Country selection, store category/contact details, content rating, target audience, final Data safety save, and production submission remain pending. Do not infer public-email permission from the internal tester address.
+- Evidence: `/private/tmp/irishsearch-production-build11.jpg`; production bundle is saved in Console, not merely built locally. Internal testing remains on build 10.
+
 These are review notes based on the current source, not submitted declarations:
 
 | Declaration | Evidence / proposed answer |
