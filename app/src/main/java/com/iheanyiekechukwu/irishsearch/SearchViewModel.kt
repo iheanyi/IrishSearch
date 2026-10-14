@@ -423,6 +423,25 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { libraryRepository.toggleInPlan(planId, classId) }
     }
 
+    fun saveCommitment(planId: String, commitment: PersonalCommitment) {
+        viewModelScope.launch { libraryRepository.saveCommitment(planId, commitment) }
+    }
+
+    fun removeCommitment(planId: String, commitmentId: String) {
+        viewModelScope.launch { libraryRepository.removeCommitment(planId, commitmentId) }
+    }
+
+    fun importLibrary(incoming: SavedLibrary, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                libraryRepository.mergeImported(incoming)
+                onComplete(true)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) { onComplete(false) }
+        }
+    }
+
     fun setSeatWatch(id: String, enabled: Boolean) {
         viewModelScope.launch { libraryRepository.setWatch(id, enabled) }
     }

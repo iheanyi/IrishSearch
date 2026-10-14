@@ -1,5 +1,7 @@
 # Optional Google sync for IrishSearch schedules
 
+Implemented: IrishSearch can manually export and restore versioned JSON library backups, export a chosen schedule as an ICS calendar, and share a PNG with a dated weekly grid and the full schedule. These exports include personal commitments. Restore adds missing items, preserves existing records, and leaves imported seat alerts off. Google account authorization and automatic Drive or Calendar sync are still future work.
+
 IrishSearch currently stores saved classes and named schedules on the phone. A Google integration should be optional and should keep the local library usable offline.
 
 ## Two distinct features
@@ -12,7 +14,7 @@ For a lightweight one-off export, Android's `CalendarContract.ACTION_INSERT` int
 ## Required setup before implementation
 
 - A Google Cloud project with Drive API and Calendar API enabled.
-- Android OAuth client for `com.iheanyiekechukwu.irishsearch` with the Play app signing SHA-1 and a debug client for development.
+- Android OAuth client for `com.iheanyi.notredame.classsearch` with the Play app signing SHA-1 and a debug client for development.
 - OAuth consent branding, verified app information, and a public privacy policy URL. Request scopes at the point of use through Google Identity Services `AuthorizationClient`, not at app launch.
 - A data migration from the current local `SavedLibrary` JSON, plus tests for duplicate imports, concurrent edits, deleted plans, recurrence dates/time zone, and revoked authorization.
 - Updated in-app privacy text and Play Data safety answers before publishing sync.

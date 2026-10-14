@@ -10,6 +10,9 @@ IrishSearch is an independent Android class browser and schedule planner for the
 - Save sections on the phone and organize them into multiple named schedules grouped by semester. Each schedule tracks known credit hours, shows a range for variable-credit courses, and flags classes whose credits are unavailable.
 - Preview a class against an existing schedule before saving it, then see meeting blocks in a weekly calendar with warnings for overlapping times. On a course's detail screen, corequisite badges show whether each explicitly named course is already in the selected schedule.
 - Optionally watch saved sections for seat increases. WorkManager checks watched sections periodically, requires a network and a battery that is not low, and asks for notification permission only when alerts are enabled. Tapping an alert opens that saved section. Android may delay periodic work; alerts are not immediate or guaranteed.
+- Track watched sections in Registration, with availability, last successful check, failures, manual refresh, and registration-number copying.
+- Add recurring personal commitments to a semester schedule. Work, practice, and other blocks appear beside classes and participate in overlap warnings without adding credits.
+- Export dated meetings as a calendar file, share a schedule image, and save or restore a portable library backup. Restore previews the import, keeps existing records, and leaves new seat alerts off. Calendar files are snapshots rather than automatic Google Calendar sync.
 - Open the Notre Dame bookstore when a verified link is present in its public class details. PATH's public class details often omit course-specific book links, so the app does not claim to display a verified book list.
 
 Notre Dame's public PATH page says instructor, building, and room details require university sign-in. The public search and detail responses we checked have empty instructor fields. Waitlist counts are displayed only if PATH supplies them; they were unavailable in the sampled sections. IrishSearch does not attempt to access private records or university accounts. Saved schedules are local planning aids and do not register anyone for classes or sync to a university system.
@@ -18,17 +21,17 @@ Notre Dame's public PATH page says instructor, building, and room details requir
 
 Open the repository root in Android Studio, use JDK 21, and install Android SDK platform 37.0. Run `./gradlew :app:assembleDebug` or `./gradlew :app:bundleRelease`.
 
-- Application ID: `com.iheanyiekechukwu.irishsearch` (preserved from the old app)
+- Application ID: `com.iheanyi.notredame.classsearch` (new listing; the original signing key is unavailable)
 - Version code/name: `10` / `3.0`
 - Minimum Android: API 24
 - Target Android: API 36
 - Compile SDK: 37
 
-The release bundle is not signed for Play until a signing configuration is provided outside Git. For an update to the existing Play listing, use its Play App Signing setup or original signing key and confirm the version code exceeds the last uploaded release.
+The release bundle is unsigned unless all four environment variables are supplied: `IRISHSEARCH_KEYSTORE` (absolute path), `IRISHSEARCH_KEYSTORE_PASSWORD`, `IRISHSEARCH_KEY_ALIAS`, and `IRISHSEARCH_KEY_PASSWORD`. Load passwords from a local secret manager without putting them in shell history. Never commit the keystore or credentials. The original listing was not enrolled in Play App Signing and its key is lost. The owner chose a new package and listing; enroll that listing in Play App Signing with a securely stored upload key. See [release preparation](docs/play-release.md).
 
 ## Play review status
 
-The code addresses the published API level requirement and removes the old bundled AdMob, Google Analytics, Apache HTTP, and generated APK artifacts. It uses HTTPS, declares only internet and notification permissions, and includes an in-app privacy notice plus [privacy policy](PRIVACY.md).
+The code addresses the published API level requirement and removes the old bundled AdMob, Google Analytics, Apache HTTP, and generated APK artifacts. It uses HTTPS and includes an in-app privacy notice plus [privacy policy](PRIVACY.md). The app declares internet and notification permissions; WorkManager also contributes network-state, wake-lock, boot-completion, and foreground-service permissions, and AndroidX contributes its signature-protected receiver permission. There is no advertising-ID, location, contacts, or broad storage permission.
 
 The 2018 rejection/removal summary supplied by Play Console did not identify the specific policy. A successful build cannot establish that the app will pass review. Before submitting, inspect the current Play Console Policy status and App content pages, complete the Data safety form based on the final binary, supply a public URL for `PRIVACY.md`, and test the signed release through an internal track.
 

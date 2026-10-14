@@ -1,0 +1,47 @@
+# Play release preparation
+
+## Console inspection: October 14, 2026
+
+The existing listing is **Irish Class Search**, package `com.iheanyiekechukwu.irishsearch`. Do not use the separate draft listing with package `edu.nd.swag.irishclasssearch`.
+
+- The correct listing is removed (June 7, 2018) and its last submission was rejected (July 20, 2018).
+- Opening the removal's issue details still shows only “Not adhering to Google Play Developer Program policies.” It does not identify a specific violation. The page offers support and appeal routes; neither was submitted.
+- Protected with Play says **Releases not signed by Play**. App signing offers enrollment using the existing Java KeyStore. No enrollment or key change was made. Console access alone does not supply the original private key.
+- The current policy page requires target API 36. The new app targets 36.
+- Latest releases and bundles lists version code **9 / 2.2** as the latest APK (uploaded August 1, 2013). The new version code **10 / 3.0** exceeds it. The legacy release row has an obviously invalid 1969 timestamp; use the artifact's upload metadata, not that timestamp.
+- App content reports **9 declarations need attention**: Data safety, Financial features, Health apps, Privacy policy, Sign in details, Content ratings, Target audience and content, Advertising ID, and Government apps.
+
+## Signing and internal testing
+
+**Current blocker:** the owner no longer has the original keystore. Google's [Play App Signing documentation](https://support.google.com/googleplay/android-developer/answer/9842756) states that a self-managed app signing key cannot be reset after loss. Upload-key resets apply to apps already enrolled in Play App Signing and do not solve this case. Unless a backup is recovered, publication requires a new application ID/listing and fresh Play-managed signing. Existing installs will not receive that as an update. The owner approved a new listing and chose `com.iheanyi.notredame.classsearch`; this is now the application ID. The Kotlin namespace remains unchanged. Existing tester data can be transferred using the manual backup/restore flow; the two packages can coexist while migrating. Resolve policy compliance for the rebuilt product before submission; a new identity does not waive the old policy concerns.
+
+1. Create the new listing for `com.iheanyi.notredame.classsearch` and enroll it in Play App Signing with a new Play-managed app signing key. Review the enrollment and agreements with the account owner before submitting them. The old listing cannot receive this build.
+2. Generate and securely back up a new upload keystore. Supply all four environment variables outside Git: `IRISHSEARCH_KEYSTORE`, `IRISHSEARCH_KEYSTORE_PASSWORD`, `IRISHSEARCH_KEY_ALIAS`, `IRISHSEARCH_KEY_PASSWORD`. Use an absolute keystore path and a secret manager; keep passwords out of shell history and logs. With none supplied, builds are explicitly unsigned. Partial configuration fails.
+3. Current source uses version code 10 / name 3.0. Check the new listing before final packaging so any previously uploaded version code is not reused.
+4. Build and verify the signed artifact, then upload to an internal track after owner approval. Validate installation, backup/restore migration, exports, alerts, and notification navigation on the delivered build. The new package can coexist with the old app but cannot directly read its private storage.
+5. Complete policy declarations and resolve any applicable policy issues before requesting production review. A build or internal test does not establish policy approval.
+
+## Declaration preparation
+
+These are review notes based on the current source, not submitted declarations:
+
+| Declaration | Evidence / proposed answer |
+| --- | --- |
+| Sign in details | App has no account or login. All in-app functions use public class data. University sign-in-only instructor/location fields remain unavailable. |
+| Advertising ID | No advertising ID permission, advertising SDK, or advertising feature. Verify merged release manifest. |
+| Financial features | No financial services or financial transactions. |
+| Health apps | No health features. Personal commitments are arbitrary user-entered schedule text. |
+| Government apps | Independent app, not a government service. |
+| Privacy policy | Publish the current `PRIVACY.md` at an accessible stable URL and enter that URL. Include exports, local commitments, and periodic PATH requests. |
+| Target audience | College course planning. Account owner should confirm intended age groups, including any prospective/dual-enrollment students. |
+| Content ratings | Complete the current questionnaire for a public course catalog and private local planning tool. No social publishing, advertising, purchases, or user-to-user messaging is implemented. |
+| Data safety | Review the final binary and Google's definitions. No developer server, analytics, ads, or account. Local schedules/commitments remain on-device unless users export them. Searches and watched-section lookups go directly to the university, including query parameters and normal network metadata; assess this processing and university practices rather than assuming that “no developer server” means no disclosure is needed. Files are sent only to the user-selected provider/app. |
+
+## Release verification
+
+- Debug-only seat simulation lives under `app/src/debug` and must be absent from the release manifest and DEX.
+- Notification checks are battery/network constrained and hourly; Android can delay them. Avoid promises of instant or guaranteed registration alerts.
+- Calendar exports are snapshots; they do not create a Google account integration or register students for courses.
+- Share images label the represented week and include an inventory of all saved schedule entries, including entries without calendar geometry.
+- Backups merge without overwriting existing IDs. Newly imported watches start off.
+- Keep the public store copy clear that this app is independent of Notre Dame and CourseLeaf.

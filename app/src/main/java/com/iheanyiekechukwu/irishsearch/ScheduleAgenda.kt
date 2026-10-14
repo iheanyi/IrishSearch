@@ -30,36 +30,41 @@ import androidx.compose.ui.unit.dp
 internal fun LazyListScope.scheduleAgenda(
     classes: List<SavedClass>,
     horizontal: Dp,
+    commitments: List<PersonalCommitment> = emptyList(),
+    onEditCommitment: (PersonalCommitment) -> Unit = {},
     onOpenClass: (SavedClass) -> Unit,
 ) {
     val meetings = classes.flatMap(::meetingsFor)
+    val blocks = scheduleBlocks(meetings, commitments)
     val dayNames = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-    meetings.groupBy { it.day }.toSortedMap().forEach { (day, dayMeetings) ->
+    blocks.groupBy { it.day }.toSortedMap().forEach { (day, dayMeetings) ->
         item(key = "agenda-day:$day") {
             Row(Modifier.fillMaxWidth().padding(horizontal = horizontal).padding(top = AppSpacing.Inline, bottom = AppSpacing.Detail),
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(dayNames[day], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                val count = dayMeetings.distinctBy { Triple(it.saved.id, it.start, it.end) }.size
+                val count = dayMeetings.distinctBy { Triple(it.id, it.start, it.end) }.size
                 Text("$count ${if (count == 1) "meeting" else "meetings"}",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        items(dayMeetings.sortedWith(compareBy({ it.start }, { it.end }, { it.saved.section.code }))
-            .distinctBy { Triple(it.saved.id, it.start, it.end) },
-            key = { "agenda:$day:${it.saved.id}:${it.start}:${it.end}" }) { meeting ->
-            val overlaps = dayMeetings.filter { other ->
-                other.saved.id != meeting.saved.id &&
-                    conflictingIds(listOf(meeting, other)).isNotEmpty()
-            }.map { "${it.saved.section.code} · ${it.saved.section.section}" }.distinct()
-            AgendaClassRow(
-                saved = meeting.saved,
-                time = agendaTime(meeting.start),
-                endTime = agendaTime(meeting.end),
-                supporting = overlaps.takeIf { it.isNotEmpty() }
-                    ?.joinToString(prefix = "Overlaps ", separator = "; "),
-                conflict = overlaps.isNotEmpty(),
+        items(dayMeetings.sortedWith(compareBy({ it.start }, { it.end }, { it.title }))
+            .distinctBy { Triple(it.id, it.start, it.end) },
+            key = { "agenda:$day:${it.id}:${it.start}:${it.end}" }) { meeting ->
+            val overlaps = dayMeetings.filter { other -> scheduleBlocksConflict(meeting, other) }
+                .map { it.title }.distinct()
+            val supporting = buildList {
+                if (meeting.commitment != null) add("${meeting.starts} – ${meeting.ends}")
+                if (overlaps.isNotEmpty()) add(overlaps.joinToString(prefix = "Overlaps "))
+            }.joinToString("\n").ifBlank { null }
+            AgendaRow(
+                title = meeting.title, subtitle = meeting.subtitle,
+                time = agendaTime(meeting.start), endTime = agendaTime(meeting.end),
+                supporting = supporting, conflict = overlaps.isNotEmpty(), personal = meeting.commitment != null,
                 modifier = Modifier.padding(horizontal = horizontal),
-                onClick = { onOpenClass(meeting.saved) },
+                onClick = {
+                    meeting.saved?.let(onOpenClass)
+                    meeting.commitment?.let(onEditCommitment)
+                },
             )
         }
     }
@@ -92,6 +97,22 @@ private fun AgendaClassRow(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    AgendaRow("${saved.section.code} · ${saved.section.section}", saved.section.title,
+        time, endTime, supporting, conflict, false, modifier, onClick)
+}
+
+@Composable
+private fun AgendaRow(
+    title: String,
+    subtitle: String,
+    time: String,
+    endTime: String?,
+    supporting: String?,
+    conflict: Boolean,
+    personal: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
     val timeWidth = 72.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
         Column(Modifier.width(timeWidth).padding(top = AppSpacing.Row), verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
@@ -104,15 +125,15 @@ private fun AgendaClassRow(
             },
             shape = MaterialTheme.shapes.medium,
             color = if (conflict) MaterialTheme.colorScheme.errorContainer
-                else MaterialTheme.colorScheme.surfaceContainerLow,
+                else if (personal) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
             contentColor = if (conflict) MaterialTheme.colorScheme.onErrorContainer
-                else MaterialTheme.colorScheme.onSurface) {
+                else if (personal) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface) {
             Row(Modifier.padding(AppSpacing.Row), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(AppSpacing.Inline)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
-                    Text("${saved.section.code} · ${saved.section.section}",
+                    Text(title,
                         style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
-                    Text(saved.section.title, style = MaterialTheme.typography.bodyMedium,
+                    Text(subtitle, style = MaterialTheme.typography.bodyMedium,
                         maxLines = 2, overflow = TextOverflow.Ellipsis)
                     supporting?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 }

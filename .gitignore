@@ -17,10 +17,14 @@ local.properties
 
 # Gradle and Android Studio
 .gradle/
+.kotlin/
 .idea/
 build/
 app/build/
 *.aab
+*.jks
+*.keystore
+keystore.properties
 
 # Eclipse project files
 .classpath

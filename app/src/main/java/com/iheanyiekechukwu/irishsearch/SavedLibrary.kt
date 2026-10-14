@@ -20,6 +20,8 @@ data class SavedClass(
     val creditHours: String = "",
     val lastSeats: Int? = null,
     val watchSeats: Boolean = false,
+    val lastCheckedAt: Long? = null,
+    val lastCheckFailed: Boolean = false,
 ) {
     val id: String get() = "$schoolId:$semesterCode:${section.crn}"
 }
@@ -31,6 +33,7 @@ data class SchedulePlan(
     val semesterCode: String,
     val semesterLabel: String,
     val classIds: Set<String> = emptySet(),
+    val commitments: List<PersonalCommitment> = emptyList(),
 )
 
 data class SavedLibrary(
@@ -205,6 +208,35 @@ class LibraryRepository(private val context: Context) {
         }
     }
 
+    suspend fun recordSeatCheck(id: String, seats: Int?, checkedAt: Long, failed: Boolean) {
+        update { current -> current.copy(classes = current.classes.map { saved ->
+            if (saved.id != id || !saved.watchSeats) saved else saved.copy(
+                lastSeats = seats ?: saved.lastSeats,
+                lastCheckedAt = if (!failed && seats != null) checkedAt else saved.lastCheckedAt,
+                lastCheckFailed = failed || seats == null,
+            )
+        }) }
+    }
+
+    suspend fun saveCommitment(planId: String, commitment: PersonalCommitment) {
+        require(commitment.id.isNotBlank())
+        require(commitmentValidation(commitment) == null)
+        update { current -> current.copy(plans = current.plans.map { plan ->
+            if (plan.id != planId) plan else plan.copy(commitments =
+                plan.commitments.filterNot { it.id == commitment.id } + commitment)
+        }) }
+    }
+
+    suspend fun removeCommitment(planId: String, commitmentId: String) {
+        update { current -> current.copy(plans = current.plans.map { plan ->
+            if (plan.id != planId) plan else plan.copy(commitments = plan.commitments.filterNot { it.id == commitmentId })
+        }) }
+    }
+
+    suspend fun mergeImported(incoming: SavedLibrary) {
+        update { current -> mergeBackup(current, incoming) }
+    }
+
     private suspend fun update(transform: (SavedLibrary) -> SavedLibrary) {
         context.libraryStore.edit { preferences ->
             preferences[key] = encode(transform(decode(preferences[key])))
@@ -216,7 +248,7 @@ class LibraryRepository(private val context: Context) {
             Regex("Seats Avail(?:able)?:\\s*(\\d+)", RegexOption.IGNORE_CASE)
                 .find(text)?.groupValues?.get(1)?.toIntOrNull()
 
-        private fun decode(raw: String?): SavedLibrary = runCatching {
+        internal fun decode(raw: String?): SavedLibrary = runCatching {
             if (raw.isNullOrBlank()) return SavedLibrary()
             val root = JSONObject(raw)
             val classes = root.optJSONArray("classes") ?: JSONArray()
@@ -245,6 +277,8 @@ class LibraryRepository(private val context: Context) {
                         creditHours = item.optString("creditHours"),
                         lastSeats = item.optInt("lastSeats").takeIf { item.has("lastSeats") },
                         watchSeats = item.optBoolean("watchSeats"),
+                        lastCheckedAt = item.optLong("lastCheckedAt").takeIf { item.has("lastCheckedAt") },
+                        lastCheckFailed = item.optBoolean("lastCheckFailed"),
                     )
                 },
                 plans = (0 until plans.length()).mapNotNull { index ->
@@ -261,12 +295,23 @@ class LibraryRepository(private val context: Context) {
                                 if (id.count { it == ':' } == 1) "${SchoolCatalogs.notreDame.id}:$id" else id
                             }
                         }.toSet(),
+                        commitments = item.optJSONArray("commitments")?.let { array ->
+                            (0 until array.length()).mapNotNull { index ->
+                                val entry = array.optJSONObject(index) ?: return@mapNotNull null
+                                val days = entry.optJSONArray("days") ?: JSONArray()
+                                PersonalCommitment(entry.optString("id"), entry.optString("title"),
+                                    (0 until days.length()).map { days.optInt(it) }.toSet(),
+                                    entry.optInt("startMinute"), entry.optInt("endMinute"),
+                                    entry.optString("starts"), entry.optString("ends"))
+                                    .takeIf { it.id.isNotBlank() && commitmentValidation(it) == null }
+                            }
+                        }.orEmpty(),
                     )
                 },
             )
         }.getOrDefault(SavedLibrary())
 
-        private fun encode(library: SavedLibrary): String = JSONObject()
+        internal fun encode(library: SavedLibrary): String = JSONObject()
             .put("classes", JSONArray().apply {
                 library.classes.forEach { saved ->
                     put(JSONObject()
@@ -289,6 +334,8 @@ class LibraryRepository(private val context: Context) {
                         })
                         .put("creditHours", saved.creditHours)
                         .put("watchSeats", saved.watchSeats)
+                        .put("lastCheckFailed", saved.lastCheckFailed)
+                        .apply { saved.lastCheckedAt?.let { put("lastCheckedAt", it) } }
                         .apply { saved.lastSeats?.let { put("lastSeats", it) } })
                 }
             })
@@ -300,7 +347,14 @@ class LibraryRepository(private val context: Context) {
                         .put("schoolId", plan.schoolId)
                         .put("semesterCode", plan.semesterCode)
                         .put("semesterLabel", plan.semesterLabel)
-                        .put("classIds", JSONArray(plan.classIds.toList())))
+                        .put("classIds", JSONArray(plan.classIds.toList()))
+                        .put("commitments", JSONArray().apply {
+                            plan.commitments.forEach { commitment -> put(JSONObject()
+                                .put("id", commitment.id).put("title", commitment.title)
+                                .put("days", JSONArray(commitment.days.sorted()))
+                                .put("startMinute", commitment.startMinute).put("endMinute", commitment.endMinute)
+                                .put("starts", commitment.starts).put("ends", commitment.ends)) }
+                        }))
                 }
             })
             .toString()

@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="108" android:viewportHeight="108">
-    <!-- Original notebook and lens. Essential artwork stays inside the central 66dp safe zone. -->
-    <path android:fillColor="@color/launcher_page"
-        android:pathData="M28,34Q28,30 32,30H42Q49,30 52,34V77Q47,73 42,73H32Q28,73 28,69Z" />
-    <group>
-        <clip-path android:pathData="M56,34Q60,28 67,28H75Q79,28 79,32V69Q79,73 75,73H67Q61,73 56,77Z" />
-        <path android:fillColor="@color/launcher_page_accent" android:fillType="evenOdd"
-            android:pathData="M56,34Q60,28 67,28H75Q79,28 79,32V69Q79,73 75,73H67Q61,73 56,77ZM67,48a13,13 0,1 0,0 26a13,13 0,1 0,0 -26Z" />
-    </group>
-    <path android:fillColor="@color/launcher_page" android:fillType="evenOdd"
-        android:pathData="M67,51a10,10 0,1 0,0 20a10,10 0,1 0,0 -20ZM67,54.5a6.5,6.5 0,1 0,0 13a6.5,6.5 0,1 0,0 -13Z" />
-    <path android:fillColor="#00000000" android:strokeColor="@color/launcher_page"
-        android:strokeWidth="4" android:strokeLineCap="round"
-        android:pathData="M74.1,68.1L79.5,73.5" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Original shamrock and search lens, within the adaptive icon safe zone. -->
+    <path android:fillColor="@color/launcher_clover" android:pathData="M54,53C51,45 39,41 39,33C39,24 49,22 54,30C59,22 69,24 69,33C69,41 57,45 54,53ZM52,56C44,47 35,43 29,46C20,50 22,61 30,62C23,67 28,77 36,76C43,75 48,65 52,56ZM52,55C53,67 50,77 46,82Q50,86 55,85C59,79 56,65 56,55Z" />
+    <path android:fillColor="@color/launcher_clover_accent" android:pathData="M56,56C64,47 73,43 79,46C88,50 86,61 78,62C85,67 80,77 72,76C65,75 60,65 56,56Z" />
+    <path android:fillColor="@color/launcher_background" android:pathData="M70,53C74.42,53 78,56.58 78,61C78,62.65 77.5,64.18 76.65,65.45L81.4,70.2Q83.2,72 81.4,73.8Q79.6,75.6 77.8,73.8L73.05,69.05C72.1,69.4 71.05,69.6 70,69.6C65.25,69.6 61.4,65.75 61.4,61C61.4,56.58 65.58,53 70,53Z" />
+    <path android:fillColor="@color/launcher_lens" android:pathData="M70,56.2a4.8,4.8 0,1 0,0 9.6a4.8,4.8 0,1 0,0 -9.6Z" />
+    <path android:fillColor="@color/launcher_clover" android:pathData="M54,51.5a3.5,3.5 0,1 0,0 7a3.5,3.5 0,1 0,0 -7Z" />
 </vector>

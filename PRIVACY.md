@@ -1,6 +1,6 @@
 # IrishSearch Privacy Policy
 
-Last updated: October 13, 2026
+Last updated: October 14, 2026
 
 IrishSearch is an independent Android app for browsing the University of Notre Dame's public class listings and planning schedules. It does not require an account. The app contains no advertising or analytics SDKs.
 
@@ -12,9 +12,15 @@ IrishSearch does not send these requests through a developer-operated server. It
 
 ## Information stored on your device
 
-Saved classes, schedule names and contents, and seat-alert choices are stored on your device. IrishSearch does not upload this information to a developer-operated server. Android backup is disabled for the app. Uninstalling the app removes its local data.
+Saved classes, schedule names and contents, personal commitments, latest seat-check status, and seat-alert choices are stored on your device. IrishSearch does not upload this information to a developer-operated server. Android backup is disabled for the app. Uninstalling the app removes its local data.
 
 If you turn on seat alerts, Android periodically runs a constrained background check for watched sections against PATH. Checks require a network connection and a battery that is not low. You can turn alerts off for any section. Android's notification permission is requested only when you turn alerts on. Delivery time depends on Android scheduling and current PATH availability.
+
+## Files you export or restore
+
+You can save a backup of your library, export a calendar, or share a schedule image. These files can include course choices, schedule names, and personal commitments. Android asks you to choose the destination or receiving app. A cloud storage provider or receiving app handles the exported file under its own policies; IrishSearch does not upload it to a developer-operated server. Exported files remain at their chosen destination after the app is uninstalled. Calendar exports are snapshots, not live calendar synchronization.
+
+Restoring a backup reads only the file you select and adds missing records to your device. It keeps existing records and leaves alerts off for newly imported classes. You can remove exported files using the storage provider or app where you saved them.
 
 ## Bookstore links
 

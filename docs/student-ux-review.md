@@ -202,3 +202,62 @@ Scoped Husky acceptance passed on the APK installed at **2026-10-14 08:03:29**, 
 - Evidence: `/private/tmp/irish-exclusion-before.png`, `/private/tmp/irish-exclusion-after.png`, `/private/tmp/irish-exclusion-related.png`, `/private/tmp/irish-exclusion-neighbor-bottom.png`, and matching XML files.
 
 This incremental build passed assembleDebug, **38 unit tests (0 failures)**, and lintDebug per the coordinating agent. The earlier 36-test combined build remains the historical result for the preceding parser fix. No additional light/large-text claims are made for this scoped follow-up.
+
+## Personal commitments and transfers: acceptance plan (October 14, 2026)
+
+Implementation adds recurring personal time to each semester plan, preserves course-only credit/registration totals, and includes real date overlap in conflict checks. Native editor grouping is informed by [Amie's event fields](https://mobbin.com/screens/ab216780-dbd5-4a82-987f-0f08da66e4f3) and [Strava's weekday recurrence](https://mobbin.com/screens/c3065753-302b-4a90-9118-6cbad60f7db2). The transfer sheet keeps distinct Save/Restore actions, informed by [Finch manual backup](https://mobbin.com/screens/0b164c58-05e5-48f8-9fde-4db095ecba22), using native Material 3 components.
+
+The following was the initial acceptance plan. Actual completed checks and explicit gaps are recorded in the results below; this checklist alone does not establish device acceptance. The isolated API34 emulator was used after the notification owner released it. Husky remained untouched by this validation.
+
+| Area | Required native check | Acceptance condition |
+| --- | --- | --- |
+| Commitment editor | New/edit/remove; blank name, missing day, invalid time/date; keyboard open | Error names the problem; fields and actions remain reachable; Cancel preserves data |
+| Agenda and Week | Class + personal overlap, adjacent time, disjoint dates, weekend, 15-minute block | Accurate conflict names, separate lanes, minimum48dp event target, course credits unchanged |
+| Persistence | Relaunch and duplicate a QA plan; edit duplicate | Personal blocks survive; duplicate can change independently; only QA records removed |
+| Calendar | Save .ics using Android file picker, inspect exported recurrence | Includes class and personal events with correct dates/time zone; missing data is reported |
+| Schedule image | Open native chooser and inspect generated PNG | Readable agenda, personal blocks distinguished, no fabricated classes/credits |
+| Backup/restore | Save JSON, preview restore, cancel, merge, repeat, malformed file | Existing records kept; missing records restored; imported alerts off; repeated restore idempotent |
+| Accessibility/layout | Light and dark, font1×/2×, keyboard, time/date pickers, transfer sheet, dashboard | Native actions reachable, paired color roles, no clipping, clear accessible action names |
+| TalkBack | Check installed service, traverse forms and actionable blocks | Actual service validation reported separately from semantics inspection; no unsupported speech claim |
+
+| Before | After | Why |
+| --- | --- | --- |
+| Backup sheet had an unscrollable body and allowed partial expansion | Bounded scroll body, fully expanded native sheet, and 48dp Close | Keeps actions and explanation reachable; normal-font native sheet accepted below, transfer-sheet2× remains untested |
+| Save/Restore removed the sheet immediately before opening Android's picker | Await the native hide transition, remove the sheet, then launch SAF; guard repeated taps | Preserves native modal lifecycle and avoids overlapping transition/action dispatch |
+| Restore showed disabled actions without progress; image generation had no immediate feedback | Restore progress indicator and Restoring label; Preparing schedule image feedback | Makes ongoing work visible without adding decorative animation |
+
+These are source-review findings and implemented changes. The observed native outcomes and remaining limits follow.
+
+### Native results on isolated API34 emulator
+
+Validated the new package `com.iheanyi.notredame.classsearch` on **emulator-5580**, at1080×2400 pixels and2.625px/dp. The old package and Husky were not changed by this test. The live fixture contains Fall2026 CSE20311 section01 (CRN12832, MWF9:25–10:15) and CSE21311 section01 (CRN12834, Monday16:00–16:50), dated2026-08-24 through2026-12-09, totaling4credits.
+
+| Check | Observed result | Evidence |
+| --- | --- | --- |
+| Native restore | Android Downloads picker opened after sheet dismissal; preview identified2classes/1plan; confirmed restore produced the correct memberships and4credits | `/private/tmp/irish-new-restore-preview.png`, `/private/tmp/irish-new-agenda-before.png` |
+| Add personal time | Created Campus work Monday9:00–10:00 through native editor. Agenda interleaves it before the lecture, identifies both overlap names, and retains4credits/2sections | `/private/tmp/irish-new-commitment-light.png`, `/private/tmp/irish-new-agenda-conflict.png` |
+| Week overlap | Personal/class events occupy separate lanes.50-minute class event measured126px =48dp; clear horizontal-scroll cue appears for overlapping lanes | `/private/tmp/irish-new-week-conflict.png` |
+| Edit and resolve | Edited Campus work to10:15–10:30 using native TimeInput. The adjacent lecture no longer conflicts.15-minute personal target measured126px =48dp | `/private/tmp/irish-new-week-15min.png` |
+| Large text/IME | At font2.0, weekdays and footer wrap; name field and Save/Cancel/Remove remain above keyboard. Native time dialog and calendar/text-date modes fit and keep actions reachable | `/private/tmp/irish-new-commitment-2x.png`, `/private/tmp/irish-new-commitment-ime-2x.png`, `/private/tmp/irish-new-time-2x.png`, `/private/tmp/irish-new-date-2x.png`, `/private/tmp/irish-new-date-input-2x.png` |
+| Native image share | Share creates a PNG and opens Android's chooser with image preview. No recipient selected. Short personal block label issue found by separate pixel review and corrected for final recheck | `/private/tmp/irish-new-share-chooser.png`, `/private/tmp/irish-new-export.png` |
+| Native calendar export | SAF saved actual .ics; inspected5VEVENTs (MWF lecture, Monday lab, Monday personal). Includes Indianapolis timezone and DST transitions, correct10:15–10:30 personal event and final matching-weekday recurrence bounds | `/private/tmp/irish-new-export.ics`, `/private/tmp/irish-new-ics-saved.png` |
+| Native backup save | SAF saved JSON with2classes,1plan, personal day[0], start615/end630, and correct date bounds. Imported alerts remainoff | `/private/tmp/irish-new-backup.json` |
+| Dark registration | Notifications-off explanation, readable course rows, and course-specific alert-switch accessibility descriptions verified; this pass did not enable alerts | `/private/tmp/irish-new-registration-dark.png` |
+
+| Before | After | Why |
+| --- | --- | --- |
+| At2×, Save rejected equal start/end but the error sat below the scroll viewport | Error placed above persistent footer actions and marked as a polite accessibility live region | The user must see why Save did not complete without searching the form |
+| Native TimeInput selected AM/PM inherited a gold tertiary container | Explicit primaryContainer/onPrimaryContainer selection roles | Matches the approved app selection palette while retaining native time behavior |
+| Restore preview said1schedules | Singular/plural class and schedule wording | Correct review copy before a data-changing action |
+| Exported15-minute personal rectangle had no text, although ledger was complete | Compact centered label in short rectangles; full details retained below | Keeps personal time identifiable in the weekly image |
+
+The final corrective APK received the focused error/color/image smoke below. Full integration gate reported by the coordinating agent: **73unit tests,0failures; lint0errors and4maintenance warnings**. Existing earlier gate counts above are historical.
+
+Not exercised in this scoped native pass: actual TalkBack speech, API24, tablet/landscape, weekend/personal-only layouts, plan duplication with commitments, native malformed-file rejection, or repeated native restore/idempotency. Relevant date validation, conflict, duplicate/merge, export, and malformed-input behavior is covered by unit/source evidence rather than claimed device evidence. Notification delivery/race tests are recorded separately by the notification owner.
+
+
+### Final corrective smoke and release
+
+The final APK was installed on emulator-5580 at **2026-10-14 09:24:59**. The QA plan and its edited commitment survived reinstall/relaunch. Final2× validation visibly remains above the footer without scrolling (`/private/tmp/irish-new-error-final-2x.png`), and native AM/PM selected colors use the paired blue roles in dark mode (`/private/tmp/irish-new-time-final-dark.png`). The final regenerated1600×2074PNG (`/private/tmp/irish-new-export-final.png`) was inspected by the export owner: the15-minute Personal:Campus work label is centered and readable; ledger, credit total, dates, and class positions remain correct.
+
+Cleanup used native UI: deleted only QA Fall2026 (including Campus work), then removed its2QA saved classes. Empty saved state captured at `/private/tmp/irish-new-cleanup.png`. Restored the isolated emulator to normal font scale1.0 (its initial unset setting used the same1× system default) and night mode no; both verified by shell readback. The old-package notification test data and physical Husky were not touched by this cleanup. The emulator is released.

@@ -45,12 +45,20 @@ internal fun SchedulesPage(
     selectPlan: (String?) -> Unit,
     onMessage: (String) -> Unit = {},
     onBrowse: (CatalogOption) -> Unit = {},
+    onExportCalendar: (SchedulePlan) -> Unit = {},
+    onShareSchedule: (SchedulePlan) -> Unit = {},
 ) {
     var creating by rememberSaveable { mutableStateOf(false) }
     var editingClasses by rememberSaveable { mutableStateOf(false) }
     var deleting by rememberSaveable { mutableStateOf(false) }
     var agendaView by rememberSaveable { mutableStateOf(true) }
     val selected = state.library.plans.firstOrNull { it.id == selectedPlanId }
+    var commitmentEditorOpen by rememberSaveable(selectedPlanId) { mutableStateOf(false) }
+    var editingCommitmentId by rememberSaveable(selectedPlanId) { mutableStateOf<String?>(null) }
+    fun editCommitment(commitment: PersonalCommitment? = null) {
+        editingCommitmentId = commitment?.id
+        commitmentEditorOpen = true
+    }
     BackHandler(enabled = selected != null && state.selectedSection == null) { selectPlan(null) }
     fun classesIn(plan: SchedulePlan): List<SavedClass> = state.library.classes.filter {
         it.id in plan.classIds && it.schoolId == plan.schoolId &&
@@ -102,7 +110,10 @@ internal fun SchedulesPage(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                ScheduleSummary(planClasses)
+                                if (plan.commitments.isNotEmpty()) Text(
+                                    "${plan.commitments.size} personal ${if (plan.commitments.size == 1) "commitment" else "commitments"}",
+                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                ScheduleSummary(planClasses, commitments = plan.commitments)
                             }
                         }
                     }
@@ -133,6 +144,19 @@ internal fun SchedulesPage(
                             Icon(Icons.Default.MoreVert, contentDescription = "Schedule actions")
                         }
                         DropdownMenu(expanded = showActions, onDismissRequest = { showActions = false }) {
+                            DropdownMenuItem(text = { Text("Add commitment") }, onClick = {
+                                showActions = false
+                                editCommitment()
+                            })
+                            DropdownMenuItem(text = { Text("Export calendar") }, onClick = {
+                                showActions = false
+                                onExportCalendar(selected)
+                            })
+                            DropdownMenuItem(text = { Text("Share schedule image") }, onClick = {
+                                showActions = false
+                                onShareSchedule(selected)
+                            })
+                            HorizontalDivider()
                             DropdownMenuItem(text = { Text("Duplicate schedule") }, onClick = {
                                 showActions = false
                                 model.duplicatePlan(selected.id) { id -> selectPlan(id); onMessage("Schedule copied") }
@@ -148,7 +172,10 @@ internal fun SchedulesPage(
                     Column(Modifier.weight(1f)) {
                         Text(creditTotal(selectedClasses), style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold)
-                        Text("${selectedClasses.size} ${if (selectedClasses.size == 1) "section" else "sections"}",
+                        Text(buildString {
+                            append("${selectedClasses.size} ${if (selectedClasses.size == 1) "section" else "sections"}")
+                            if (selected.commitments.isNotEmpty()) append(" · ${selected.commitments.size} personal")
+                        },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -157,8 +184,8 @@ internal fun SchedulesPage(
                         Text("Classes", Modifier.padding(start = AppSpacing.Inline))
                     }
                 }
-                ScheduleSummary(selectedClasses, showFreeDays = false)
-                if (selectedClasses.isNotEmpty()) SecondaryTabRow(selectedTabIndex = if (agendaView) 0 else 1) {
+                ScheduleSummary(selectedClasses, showFreeDays = false, commitments = selected.commitments)
+                if (selectedClasses.isNotEmpty() || selected.commitments.isNotEmpty()) SecondaryTabRow(selectedTabIndex = if (agendaView) 0 else 1) {
                     Tab(selected = agendaView, onClick = { agendaView = true }, text = { Text("Agenda") })
                     Tab(selected = !agendaView, onClick = { agendaView = false }, text = { Text("Week") })
                 }
@@ -168,29 +195,30 @@ internal fun SchedulesPage(
                 animationSpec = tween(140), label = "Schedule view") { showAgenda ->
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(top = AppSpacing.Row, bottom = AppSpacing.Page),
                     verticalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
-                    if (selectedClasses.isEmpty()) item {
+                    if (selectedClasses.isEmpty() && selected.commitments.isEmpty()) item {
                         Column(Modifier.padding(horizontal = horizontal), verticalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
                             Text("Start building your week", style = MaterialTheme.typography.titleLarge)
-                            Text("Choose saved classes, or find sections for this semester.",
+                            Text("Choose classes for this semester, or block out work, practice, and other personal time.",
                                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(onClick = { editingClasses = true }) { Text("Choose saved classes") }
+                            OutlinedButton(onClick = { editCommitment() }) { Text("Add personal commitment") }
                             TextButton(onClick = { onBrowse(CatalogOption(selected.semesterCode, selected.semesterLabel)) }) {
                                 Text("Find classes")
                             }
                         }
                     } else if (showAgenda) {
-                        scheduleAgenda(selectedClasses, horizontal) { saved ->
+                        scheduleAgenda(selectedClasses, horizontal, selected.commitments, { editCommitment(it) }) { saved ->
                             model.openSection(saved.section, CatalogOption(saved.semesterCode, saved.semesterLabel), saved.schoolId)
                         }
                     } else {
                         item {
-                            if (meetings.isEmpty()) Text("Meeting times have not been published for these sections.",
+                            if (meetings.isEmpty() && selected.commitments.isEmpty()) Text("Meeting times have not been published for these sections.",
                                 Modifier.padding(horizontal = horizontal))
-                            else WeeklyCalendar(meetings, conflicts) { saved ->
+                            else WeeklyCalendar(meetings, conflicts, selected.commitments, { editCommitment(it) }) { saved ->
                                 model.openSection(saved.section, CatalogOption(saved.semesterCode, saved.semesterLabel), saved.schoolId)
                             }
                         }
-                        item {
+                        if (selectedClasses.isNotEmpty()) item {
                             Text("Classes in this schedule", Modifier.padding(horizontal = horizontal),
                                 style = MaterialTheme.typography.titleMedium)
                         }
@@ -198,6 +226,24 @@ internal fun SchedulesPage(
                             Column(Modifier.padding(horizontal = horizontal)) {
                                 CourseRow(saved.section, true) {
                                     model.openSection(saved.section, CatalogOption(saved.semesterCode, saved.semesterLabel), saved.schoolId)
+                                }
+                            }
+                        }
+                    }
+                    if (!showAgenda && selected.commitments.isNotEmpty()) {
+                        item { Text("Personal commitments", Modifier.padding(horizontal = horizontal),
+                            style = MaterialTheme.typography.titleMedium) }
+                        items(selected.commitments, key = { "commitment:${it.id}" }) { commitment ->
+                            Surface(onClick = { editCommitment(commitment) },
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = horizontal),
+                                shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer) {
+                                Column(Modifier.padding(AppSpacing.Row), verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
+                                    Text(commitment.title, style = MaterialTheme.typography.titleSmall)
+                                    Text("${commitment.days.sorted().joinToString(" · ") { DayNames[it] }} · ${commitmentTime(commitment.startMinute)}–${commitmentTime(commitment.endMinute)}",
+                                        style = MaterialTheme.typography.bodyMedium)
+                                    Text("${commitment.starts} – ${commitment.ends} · Tap to edit",
+                                        style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
@@ -212,13 +258,28 @@ internal fun SchedulesPage(
         if (deleting) AlertDialog(
             onDismissRequest = { deleting = false },
             title = { Text("Delete ${selected.name}?") },
-            text = { Text("Your saved classes will still be available to add to other schedules.") },
+            text = { Text("Personal commitments in this schedule will be removed. Your saved classes will still be available to add to other schedules.") },
             confirmButton = { TextButton(onClick = {
                 model.removePlan(selected.id)
                 deleting = false
                 selectPlan(null)
             }) { Text("Delete schedule") } },
             dismissButton = { TextButton(onClick = { deleting = false }) { Text("Keep schedule") } },
+        )
+        if (commitmentEditorOpen) CommitmentEditor(
+            plan = selected, classes = selectedClasses,
+            existing = selected.commitments.firstOrNull { it.id == editingCommitmentId },
+            onDismiss = { commitmentEditorOpen = false },
+            onSave = { commitment ->
+                model.saveCommitment(selected.id, commitment)
+                commitmentEditorOpen = false
+                onMessage(if (editingCommitmentId == null) "Commitment added" else "Commitment updated")
+            },
+            onRemove = { id ->
+                model.removeCommitment(selected.id, id)
+                commitmentEditorOpen = false
+                onMessage("Commitment removed")
+            },
         )
         if (editingClasses) {
             val available = state.library.classes.filter {
@@ -352,9 +413,10 @@ internal fun meetingsFor(saved: SavedClass): List<CalendarMeeting> = runCatching
 internal fun conflictingIds(meetings: List<CalendarMeeting>): Set<String> = scheduleConflictingIds(meetings)
 
 @Composable
-private fun ScheduleSummary(classes: List<SavedClass>, showFreeDays: Boolean = true) {
-    if (classes.isEmpty()) return
-    val summary = scheduleInsights(classes)
+private fun ScheduleSummary(classes: List<SavedClass>, showFreeDays: Boolean = true,
+    commitments: List<PersonalCommitment> = emptyList()) {
+    if (classes.isEmpty() && commitments.isEmpty()) return
+    val summary = scheduleInsights(classes, commitments = commitments)
     Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
         if (summary.conflictCount > 0) Text(
             "${summary.conflictCount} ${if (summary.conflictCount == 1) "overlapping pair" else "overlapping pairs"}",
@@ -366,7 +428,7 @@ private fun ScheduleSummary(classes: List<SavedClass>, showFreeDays: Boolean = t
             "Multiple sections: ${summary.duplicateCourseSections.keys.joinToString()}. Check required sections before registering.",
             color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         if (showFreeDays && summary.freeWeekdays.isNotEmpty()) Text(
-            "${if (summary.unknownMeetingClassCount == 0) "No classes" else "No known classes"} ${summary.freeWeekdays.sorted().joinToString(" & ") { DayNames[it] }}",
+            "${if (summary.unknownMeetingClassCount == 0) "Free" else "No known meetings"} ${summary.freeWeekdays.sorted().joinToString(" & ") { DayNames[it] }}",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (showFreeDays && summary.conflictCount == 0 && summary.unknownMeetingClassCount == 0) Text(
             "No known time conflicts", style = MaterialTheme.typography.bodyMedium,

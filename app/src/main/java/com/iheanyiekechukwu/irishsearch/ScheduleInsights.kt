@@ -11,7 +11,7 @@ internal data class ScheduleInsights(
     val sectionCount: Int,
     val unknownMeetingClassCount: Int,
     val conflictingClassIds: Set<String>,
-    /** Unique pairs of sections, even when the same pair overlaps on several days. */
+    /** Unique pairs of classes or personal commitments, even when a pair overlaps on several days. */
     val conflictCount: Int,
     /** Several selected sections of one course may represent alternatives or required components. */
     val duplicateCourseSections: Map<String, List<SavedClass>>,
@@ -19,12 +19,14 @@ internal data class ScheduleInsights(
     val latestEndMinutes: Int?,
     /** Days without known meetings. Unknown meeting times mean these days are not confirmed free. */
     val freeWeekdays: Set<Int>,
+    val conflictingCommitmentIds: Set<String> = emptySet(),
 )
 
 /** Summarizes selected sections; duplicate saved records and unrelated meetings do not inflate totals. */
 internal fun scheduleInsights(
     classes: List<SavedClass>,
     meetings: List<CalendarMeeting> = classes.flatMap(::meetingsFor),
+    commitments: List<PersonalCommitment> = emptyList(),
 ): ScheduleInsights {
     val sections = classes.distinctBy { it.id }
     val sectionIds = sections.mapTo(mutableSetOf()) { it.id }
@@ -34,19 +36,22 @@ internal fun scheduleInsights(
     val courses = sections.groupBy { saved ->
         listOf(saved.schoolId, saved.semesterCode, normalizedCourseCode(saved).ifBlank { saved.id })
     }
-    val conflicts = conflictingSectionPairs(knownMeetings)
+    val blocks = scheduleBlocks(knownMeetings, commitments)
+    val conflicts = scheduleBlockConflictPairs(blocks)
+    val conflictingIds = conflicts.flatten().toSet()
     return ScheduleInsights(
         courseCount = courses.size,
         sectionCount = sections.size,
         unknownMeetingClassCount = sections.count { it.id !in classesWithMeetings },
-        conflictingClassIds = conflicts.flatMapTo(linkedSetOf()) { it },
+        conflictingClassIds = conflictingIds.intersect(sectionIds),
         conflictCount = conflicts.size,
         duplicateCourseSections = courses.values.filter {
             it.size > 1 && it.first().section.code.isNotBlank()
         }.associate { group -> normalizedCourseCode(group.first()) to group },
-        earliestStartMinutes = knownMeetings.minOfOrNull { it.start },
-        latestEndMinutes = knownMeetings.maxOfOrNull { it.end },
-        freeWeekdays = (0..4).filterTo(linkedSetOf()) { day -> knownMeetings.none { it.day == day } },
+        earliestStartMinutes = blocks.minOfOrNull { it.start },
+        latestEndMinutes = blocks.maxOfOrNull { it.end },
+        freeWeekdays = (0..4).filterTo(linkedSetOf()) { day -> blocks.none { it.day == day } },
+        conflictingCommitmentIds = commitments.filter { "personal:${it.id}" in conflictingIds }.mapTo(linkedSetOf()) { it.id },
     )
 }
 
@@ -100,7 +105,7 @@ private fun meetingDateRange(section: CourseSection): LongRange? {
     return (start..end).takeIf { start <= end }
 }
 
-private fun dateEpochDay(raw: String): Long? {
+internal fun dateEpochDay(raw: String): Long? {
     if (!raw.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) return null
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
         isLenient = false

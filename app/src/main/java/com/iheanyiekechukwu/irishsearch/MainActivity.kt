@@ -22,6 +22,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -56,6 +57,8 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
@@ -65,6 +68,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -102,6 +107,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -211,6 +217,7 @@ private fun IrishSearchScreen(
     var pickingSemester by rememberSaveable { mutableStateOf(false) }
     var pickingSubject by rememberSaveable { mutableStateOf(false) }
     var selectedPlanId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showAppMenu by remember { mutableStateOf(false) }
     var showPrivacy by rememberSaveable { mutableStateOf(false) }
     var previewing by rememberSaveable { mutableStateOf(false) }
     var addingSelectedToSchedule by rememberSaveable { mutableStateOf(false) }
@@ -244,6 +251,9 @@ private fun IrishSearchScreen(
             if (result == SnackbarResult.ActionPerformed) onAction()
         }
     }
+    val transfers = rememberLibraryTransfers(state.library, model::importLibrary) { notify(it) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val checkingSeats by remember(context) { SeatWatchWorker.checking(context) }.collectAsState(initial = false)
     fun removeWithUndo(id: String) {
         val saved = state.library.classes.firstOrNull { it.id == id } ?: return
         val planIds = state.library.plans.filter { id in it.classIds }.map { it.id }.toSet()
@@ -279,8 +289,20 @@ private fun IrishSearchScreen(
                         } else Text("IrishSearch", style = MaterialTheme.typography.titleMedium)
                     },
                     actions = {
-                        IconButton(onClick = { showPrivacy = true }) {
-                            Icon(Icons.Default.Info, contentDescription = "Privacy")
+                        Box {
+                            IconButton(onClick = { showAppMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "App options")
+                            }
+                            DropdownMenu(expanded = showAppMenu, onDismissRequest = { showAppMenu = false }) {
+                                DropdownMenuItem(text = { Text("Backup & restore") }, onClick = {
+                                    showAppMenu = false
+                                    transfers.openBackup()
+                                })
+                                DropdownMenuItem(text = { Text("Privacy") }, onClick = {
+                                    showAppMenu = false
+                                    showPrivacy = true
+                                })
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -317,11 +339,12 @@ private fun IrishSearchScreen(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 tonalElevation = 0.dp,
             ) {
-                listOf("Browse", "Saved", "Schedules").forEachIndexed { index, label ->
+                listOf("Browse", "Saved", "Schedules", "Registration").forEachIndexed { index, label ->
                     val icon = when (index) {
                         0 -> Icons.Default.Search
                         1 -> Icons.Default.Bookmark
-                        else -> Icons.Default.CalendarMonth
+                        2 -> Icons.Default.CalendarMonth
+                        else -> Icons.Default.Notifications
                     }
                     NavigationBarItem(
                         selected = tab == index,
@@ -348,9 +371,16 @@ private fun IrishSearchScreen(
                         { pickingSemester = true }, { pickingSubject = true })
                     1 -> SavedPage(state, model, horizontal, setSeatWatch,
                         onRemoveSaved = ::removeWithUndo, onOpenPlans = { tab = 2 })
-                    else -> SchedulesPage(state, model, horizontal, selectedPlanId,
+                    2 -> SchedulesPage(state, model, horizontal, selectedPlanId,
                         { selectedPlanId = it }, onMessage = { notify(it) },
-                        onBrowse = { semester -> model.chooseSemester(semester); tab = 0 })
+                        onBrowse = { semester -> model.chooseSemester(semester); tab = 0 },
+                        onExportCalendar = transfers.exportCalendar, onShareSchedule = transfers.shareImage)
+                    else -> RegistrationDashboard(state.library,
+                        onOpen = { saved -> model.openSection(saved.section,
+                            CatalogOption(saved.semesterCode, saved.semesterLabel), saved.schoolId) },
+                        onRefresh = { SeatWatchWorker.refresh(context); notify("Seat check queued. Android will run it when connected and battery is sufficient.") },
+                        onWatch = { saved, enabled -> setSeatWatch(saved.id, enabled) },
+                        onMessage = { notify(it) }, checking = checkingSeats, horizontal = horizontal)
                 }
             }
             if (section != null) {
@@ -405,7 +435,7 @@ private fun IrishSearchScreen(
                     verticalArrangement = Arrangement.spacedBy(AppSpacing.Row)) {
                     Text("IrishSearch does not require an account and contains no ads or analytics.")
                     Text("Searches and section-detail requests go directly from your phone to Notre Dame’s public PATH class search. The university receives the request and may process your IP address under its own policies.")
-                    Text("Saved classes, schedules, and seat-alert settings stay on your phone. They are removed when you uninstall the app. Seat alerts make periodic requests for watched sections while a network is available and the battery is not low.")
+                    Text("Saved classes, schedules, personal commitments, and seat-alert settings stay on your phone. You can export backups, calendars, and schedule images to a location or app you choose. Those exported files remain there after uninstall; the app’s local data is removed. Seat alerts make periodic requests for watched sections while a network is available and the battery is not low.")
                     Text("If you open the bookstore, your browser visits its website. IrishSearch does not receive your bookstore activity.")
                 }
             },

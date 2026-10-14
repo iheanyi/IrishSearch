@@ -22,8 +22,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun WeeklyCalendar(meetings: List<CalendarMeeting>, conflicts: Set<String>, onOpenClass: ((SavedClass) -> Unit)? = null) {
-    val placements = remember(meetings) { layoutCalendarMeetings(meetings) }
+internal fun WeeklyCalendar(
+    meetings: List<CalendarMeeting>,
+    conflicts: Set<String>,
+    commitments: List<PersonalCommitment> = emptyList(),
+    onEditCommitment: ((PersonalCommitment) -> Unit)? = null,
+    onOpenClass: ((SavedClass) -> Unit)? = null,
+) {
+    val blocks = remember(meetings, commitments) { scheduleBlocks(meetings, commitments) }
+    val placements = remember(blocks) { layoutScheduleBlocks(blocks) }
+    val allConflicts = conflicts + scheduleBlockConflictPairs(blocks).flatten()
+    val onOpenBlock: ((ScheduleBlock) -> Unit)? = if (onOpenClass == null && onEditCommitment == null) null else { block ->
+        block.saved?.let { onOpenClass?.invoke(it) }
+        block.commitment?.let { onEditCommitment?.invoke(it) }
+    }
     val visibleMeetings = placements.map { it.meeting }
     val firstHour = ((visibleMeetings.minOfOrNull { it.start } ?: 480) / 60).coerceAtLeast(0)
     val lastHour = (((visibleMeetings.maxOfOrNull { it.end } ?: 1080) + 59) / 60).coerceAtMost(24)
@@ -32,7 +44,7 @@ internal fun WeeklyCalendar(meetings: List<CalendarMeeting>, conflicts: Set<Stri
     val shortestMeeting = visibleMeetings.minOfOrNull { it.end - it.start }?.coerceAtLeast(1) ?: 60
     val baseHourHeight = calendarHourHeightDp(shortestMeeting)
     if (baseHourHeight == null) {
-        ShortMeetingWeek(visibleMeetings, conflicts, onOpenClass)
+        ShortMeetingWeek(visibleMeetings, allConflicts, onOpenBlock)
         return
     }
     val hourHeight = baseHourHeight.dp * fontScale
@@ -87,7 +99,7 @@ internal fun WeeklyCalendar(meetings: List<CalendarMeeting>, conflicts: Set<Stri
                                     val laneWidth = (dayWidth - 8.dp - laneGap * (placement.laneCount - 1)) /
                                         placement.laneCount
                                     val left = 2.dp + (laneWidth + laneGap) * placement.lane
-                                    CalendarEvent(meeting, meeting.saved.id in conflicts, onOpenClass,
+                                    CalendarEvent(meeting, meeting.id in allConflicts, onOpenBlock,
                                         Modifier.offset(x = left, y = top).width(laneWidth)
                                             .height((height - 2.dp).coerceAtLeast(1.dp)),
                                         showTime = !compact && height >= 44.dp * fontScale,
@@ -105,21 +117,21 @@ internal fun WeeklyCalendar(meetings: List<CalendarMeeting>, conflicts: Set<Stri
 
 @Composable
 private fun ShortMeetingWeek(
-    meetings: List<CalendarMeeting>,
+    meetings: List<ScheduleBlock>,
     conflicts: Set<String>,
-    onOpenClass: ((SavedClass) -> Unit)?,
+    onOpenBlock: ((ScheduleBlock) -> Unit)?,
 ) {
     Column(Modifier.padding(horizontal = AppSpacing.Page),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.Inline)) {
-        Text("Short meetings are shown in a list so each class is easy to open.",
+        Text("Short meetings are shown in a list so each item is easy to open.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         meetings.sortedWith(compareBy({ it.day }, { it.start })).forEach { meeting ->
-            val conflict = meeting.saved.id in conflicts
+            val conflict = meeting.id in conflicts
             val modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)
-                .then(if (onOpenClass == null) Modifier else Modifier.clickable(
-                    role = Role.Button, onClickLabel = "Open class details",
-                ) { onOpenClass(meeting.saved) })
+                .then(if (onOpenBlock == null) Modifier else Modifier.clickable(
+                    role = Role.Button, onClickLabel = if (meeting.commitment == null) "Open class details" else "Edit commitment",
+                ) { onOpenBlock(meeting) })
             Surface(modifier = modifier, shape = MaterialTheme.shapes.small,
                 color = if (conflict) MaterialTheme.colorScheme.errorContainer
                     else MaterialTheme.colorScheme.surfaceContainerLow,
@@ -127,8 +139,9 @@ private fun ShortMeetingWeek(
                     else MaterialTheme.colorScheme.onSurface) {
                 Column(Modifier.padding(AppSpacing.Row),
                     verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
-                    Text("${meeting.saved.section.code} · ${meeting.saved.section.section}",
+                    Text(meeting.title,
                         style = MaterialTheme.typography.titleSmall)
+                    if (meeting.commitment != null) Text("Personal commitment", style = MaterialTheme.typography.labelMedium)
                     Text("${DayNames[meeting.day]} · ${calendarTime(meeting.start, true)}–${calendarTime(meeting.end, true)}",
                         style = MaterialTheme.typography.bodyMedium)
                     if (conflict) Text("Time conflict", style = MaterialTheme.typography.labelMedium)
@@ -140,55 +153,54 @@ private fun ShortMeetingWeek(
 
 @Composable
 private fun CalendarEvent(
-    meeting: CalendarMeeting,
+    meeting: ScheduleBlock,
     conflict: Boolean,
-    onOpenClass: ((SavedClass) -> Unit)?,
+    onOpenBlock: ((ScheduleBlock) -> Unit)?,
     modifier: Modifier,
     showTime: Boolean,
     showTitle: Boolean,
     compact: Boolean,
 ) {
-    val section = meeting.saved.section
     val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     val description = buildList {
-        add("${section.code}, ${section.title}")
-        if (section.section.isNotBlank()) add("Section ${section.section}")
+        add("${meeting.title}. ${meeting.subtitle}")
         add("${weekdays[meeting.day]}, ${calendarTime(meeting.start, true)} to ${calendarTime(meeting.end, true)}")
-        if (section.starts.isNotBlank() && section.ends.isNotBlank()) {
-            add("Dates ${section.starts} through ${section.ends}")
+        if (meeting.starts.isNotBlank() && meeting.ends.isNotBlank()) {
+            add("Dates ${meeting.starts} through ${meeting.ends}")
         }
-        if (conflict) add("Class has a time conflict")
+        if (conflict) add("Time conflict")
     }.joinToString(". ")
-    val interactive = if (onOpenClass == null) Modifier else Modifier.clickable(
-        role = Role.Button, onClickLabel = "Open class details",
-    ) { onOpenClass(meeting.saved) }
+    val interactive = if (onOpenBlock == null) Modifier else Modifier.clickable(
+        role = Role.Button, onClickLabel = if (meeting.commitment == null) "Open class details" else "Edit commitment",
+    ) { onOpenBlock(meeting) }
     Surface(
         modifier = modifier.then(interactive).clearAndSetSemantics {
             contentDescription = description
-            if (onOpenClass != null) {
+            if (onOpenBlock != null) {
                 role = Role.Button
-                onClick(label = "Open class details") {
-                    onOpenClass(meeting.saved)
+                onClick(label = if (meeting.commitment == null) "Open class details" else "Edit commitment") {
+                    onOpenBlock(meeting)
                     true
                 }
             }
         },
         color = if (conflict) MaterialTheme.colorScheme.errorContainer
+            else if (meeting.commitment != null) MaterialTheme.colorScheme.secondaryContainer
             else MaterialTheme.colorScheme.primaryContainer,
         contentColor = if (conflict) MaterialTheme.colorScheme.onErrorContainer
+            else if (meeting.commitment != null) MaterialTheme.colorScheme.onSecondaryContainer
             else MaterialTheme.colorScheme.onPrimaryContainer,
         shape = MaterialTheme.shapes.extraSmall,
     ) {
         Column(Modifier.padding(AppSpacing.Detail)) {
-            val label = if (section.section.isBlank()) section.code
-                else "${section.code} · ${section.section}"
-            Text(if (compact) section.code else label,
+            val label = meeting.title
+            Text(label,
                 style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold, maxLines = if (compact) 2 else 1, overflow = TextOverflow.Ellipsis)
             if (showTime) Text("${calendarTime(meeting.start)}–${calendarTime(meeting.end)}",
                 style = MaterialTheme.typography.labelSmall, maxLines = 1,
                 overflow = TextOverflow.Ellipsis)
-            if (showTitle) Text(section.title, style = MaterialTheme.typography.bodySmall,
+            if (showTitle) Text(meeting.subtitle, style = MaterialTheme.typography.bodySmall,
                 maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
