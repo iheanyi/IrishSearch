@@ -341,14 +341,14 @@ private fun RequirementTextBody(
                 Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.Detail)) {
                     row.label?.let { Text(it, style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    LinkedRequirementText(row.text, subjects, onRelatedCourse)
+                    LinkedRequirementText(row.text, courseReferences(row.text, subjects), onRelatedCourse)
                 }
             }
-        } else display.lines().filter { it.isNotBlank() }.forEach { paragraph ->
-            if (paragraph.trimStart().startsWith("*")) Text(paragraph,
+        } else courseReferenceLines(display, if (label == "Section notes") emptySet() else subjects).forEach { line ->
+            if (line.text.trimStart().startsWith("*")) Text(line.text,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            else LinkedRequirementText(paragraph, if (label == "Section notes") emptySet() else subjects, onRelatedCourse)
+            else LinkedRequirementText(line.text, line.references, onRelatedCourse)
         }
     }
 }
@@ -389,9 +389,8 @@ private fun StructuredRequirement(
 }
 
 @Composable
-private fun LinkedRequirementText(content: String, subjects: Set<String>, onRelatedCourse: (String) -> Unit) {
+private fun LinkedRequirementText(content: String, references: List<CourseReference>, onRelatedCourse: (String) -> Unit) {
     val linkedColor = MaterialTheme.colorScheme.primary
-    val references = courseReferences(content, subjects)
     val text = buildAnnotatedString {
         var next = 0
         for (reference in references) {

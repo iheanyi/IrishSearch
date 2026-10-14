@@ -89,7 +89,7 @@ Rejected candidates:
 
 Verdict: this planning app needs little additional motion. Native sheets, ripple, predictive back, and restrained state changes already cover the major transitions. The highest-value remaining opportunity is tracking an individually removed/restored saved row. Treat the table as a future implementation handoff, not a reason to delay functional verification.
 
-## Validation ledger (in progress)
+## Validation ledger
 
 | Area | Evidence | Result / limit |
 | --- | --- | --- |
@@ -101,19 +101,19 @@ Verdict: this planning app needs little additional motion. Native sheets, ripple
 | Redesigned browse | Husky dark screenshot `/tmp/irish-redesign-browse-dark.png` | Single heading, aligned controls and neutral selected colors inspected |
 | Redesigned agenda | Husky dark screenshot `/tmp/irish-redesign-agenda-dark.png` | Compact header, time gutter, four readable meeting rows, registration action visible; screenshot predates user-requested secondary tabs |
 | User-reported scroll jitter | Exact bottom repro: `/private/tmp/irish-husky-subject-bottom.mp4`; contact sheet `/tmp/irish-subject-bottom-contact.png` | Confirmed severe whole-sheet vertical oscillation at final WR subject; title enters status-bar region and Apply footer shifts.3607 frames,19 current-deadline janky(0.53%),1933 legacy(53.59%); fixed and retested as described below |
-| Build/static checks | Coordinating agent second joint build | assembleDebug,21 unit tests,lintDebug(no errors),bundleRelease pass; later fixes require rebuild |
+| Build/static checks | Coordinating agent final combined build | assembleDebug, 36 unit tests (0 failures), lintDebug (0 errors, 4 maintenance warnings), and bundleRelease pass, including the final cross-line prerequisite-link fix. |
 | Light/dark/large text | Husky `/tmp/irish-week-light.png`, `/tmp/irish-week-light-2x.png`, `/tmp/irish-week-dark-tabs.png` | Week verified in both themes and at2× text; large text uses explicit sideways-scroll cue. Original night=yes,font_scale=1.0 restored. Other final surfaces still pending |
 
-The subject-sheet oscillation gate passed after the fixed-height implementation. The broader visual acceptance gate remains open until final Add/Create/requirement changes are installed and rechecked. Runtime TalkBack speech, actual background notification delivery, and an API24 device run are not claimed.
+The subject-sheet oscillation gate passed after the fixed-height implementation. Final dark-theme Add/Create/requirement and calendar checks passed as recorded below. Final light-theme coverage remains incomplete because the bedtime appearance override prevented the requested theme change. Runtime TalkBack speech, actual background notification delivery, and an API24 device run are not claimed.
 
-## Severity-ranked findings awaiting final verification
+## Severity-ranked findings and acceptance
 
 | Severity | Surface | Finding | Implementation / acceptance evidence |
 | --- | --- | --- | --- |
 | P1 | Subject selector | At bottom, repeated flings cause the entire sheet to oscillate vertically, including fixed header and Apply. Frame-deadline metrics alone understate this visible layout defect. | Fixed: stable height computed before dialog measurement, gesture handoff disabled for Subject, explicit Close. Exact twelve-fling retest reached WR with identical title bounds before/after; reverse fling also stable. |
 | P2 | Planner navigation | Checkmarked segmented buttons communicate selection rather than related content views. | Replaced with `SecondaryTabRow` and two native `Tab` children; Husky dark/light screenshots verify no selection checkmarks. |
 | P2 | Agenda accessibility | Focused class surface omitted the time gutter from its announcement. | Added time-range contentDescription with merged descendants; actual spoken TalkBack untested. |
-| P2 | Detail requirements | Provider abbreviations can leave bare course numbers unlinked; repeated restriction names impair scanning. | Dedicated detail implementation in progress; preserve original rule meaning. |
+| P2 | Detail requirements | Provider abbreviations can leave bare course numbers unlinked; repeated restriction names impair scanning. | CSE 40657 renders All of with nested One of; inherited CSE 44648 opens two same-term sections. Cross-line inherited-subject parsing also has two regression tests in the final build. |
 | P2 | Large-text layouts | Fixed-width time gutter could wrap times; related sheet header could consume results space. | Gutter now scales with font scale; related-sheet owner adjusting adaptive content. Final font-size inspection pending. |
 
 ### Subject-bottom regression retest
@@ -129,7 +129,7 @@ Installed intermediate build: version3.0/code10, targetSdk36, device update2026-
 
 Native screenshots exposed three inconsistent flows: `/tmp/irish-create-before-1x.png`, `/tmp/irish-add-detail-before-1x.png`, `/tmp/irish-add-detail-before-2x.png`, and the separate Saved membership editor `/tmp/irish-add-dialog-before-1x.png`.
 
-Creation now uses a concise name/semester form with labeled full-width controls, one Create schedule action, keyboard Done, and scrollable content. The new plan opens immediately into a checkbox class chooser; an empty chosen semester offers Find classes and preserves plan context on return. Detail Add uses a separate single-destination selection flow; Saved membership editing uses checkboxes because a section can belong to several plans. Final installed validation pending.
+Creation now uses a concise name/semester form with labeled full-width controls, one Create schedule action, keyboard Done, and scrollable content. The new plan opens immediately into a checkbox class chooser; an empty chosen semester offers Find classes and preserves plan context on return. Detail Add uses a separate single-destination selection flow; Saved membership editing uses checkboxes because a section can belong to several plans. Final installed creation, class selection, calendar navigation, and QA cleanup passed at normal text size; see the October 14 ledger.
 
 [Android dialog guidance](https://developer.android.com/develop/ui/compose/components/dialog) supports native dialogs for concise user input and explicit confirmation/dismissal actions; native components still require deliberate hierarchy, content, and responsive layout.
 
@@ -141,14 +141,43 @@ Material 3 compatibility is not a single certification flag. Compose provides co
 | --- | --- | --- | --- |
 | Spacing scale | `AppSpacing`4/8/12/16/24/32dp; inline8, row12, group16, compact page16 | Browse controls, detail summary, agenda, week, and fixed subject screenshot show aligned edges | Numerical dimensions such as icon24, target48, agenda time gutter72, and calendar geometry are purposeful dimensions outside the gap scale |
 | Phone grid | Compact layout below600dp;16dp horizontal gutter; expanded layouts use32dp; content widths constrained where appropriate |448dp-wide Husky: Browse controls share page edges; week fits five ordinary single-lane weekdays |600dp/tablet and landscape visual acceptance not completed; this is a phone audit, not a claim of full adaptive coverage |
-| Type and component layout | Native `Typography()`, paired color roles, theme shapes; native button/chip/checkbox/radio/tab metrics | Week dark/light1× and light2× verified; old Add dialog2× captured specifically to identify problems | Final Add/Create/requirements, Subject and filters need updated2× screenshots after final install |
-| Agenda/week | Agenda time gutter scales with font scale; grid columns grow when text grows; sideways-scroll cue appears if needed | Week1× includes all five days;2× displays legible enlarged labels with explicit scroll cue | Agenda2× attempted while user moved to launcher, so that capture is not app evidence; final calendar scaling requires installed inspection |
-| Insets and edges | Root Scaffold handles system bars; native modal sheet insets; detail reserves104dp for FAB reach; fixed subject footer separates final row | Week content/nav and normal detail respect system bars; subject WR final row fully visible after bottom flings | Final IME-open Add/Create and short-height/landscape sheets still require inspection |
-| Sheet stability | Height measured from calling window before dialog; Subject disables gesture handoff and offers48dp Close; header/footer fixed | Twelve bottom flings and reverse fling preserve exact title bounds; no former whole-sheet oscillation | New tonal/80%height polish must be inspected on final APK; frame metrics are not a substitute for geometry evidence |
-| Interaction size | Native controls and explicit48dp minimum actions; class selection rows at least64–72dp | Normal-sized controls visually inspected; semantics expose labels and selected states | Calendar scaling now reserves48dp after the event gap, capped at200dp/hour; meetings shorter than15minutes use72dp-minimum list rows. Nine focused calendar tests passed, including50-minute and15-minute geometry plus the sub15-minute fallback; final installed inspection pending |
+| Type and component layout | Native `Typography()`, paired color roles, theme shapes; native button/chip/checkbox/radio/tab metrics | Week dark/light1× and light2× verified; old Add dialog2× captured specifically to identify problems | Final Add selection and new mode inspected at2× before the pause. Standalone Create, requirements, Subject and filters lack complete final2× coverage; no additional font changes were made after the user requested normal size |
+| Agenda/week | Agenda time gutter scales with font scale; grid columns grow when text grows; sideways-scroll cue appears if needed | Week1× includes all five days;2× displays legible enlarged labels with explicit scroll cue | Agenda2× attempted while user moved to launcher, so that capture is not app evidence; final normal calendar scaling measured48dp event targets; final2× calendar scaling not repeated |
+| Insets and edges | Root Scaffold handles system bars; native modal sheet insets; detail reserves104dp for FAB reach; fixed subject footer separates final row | Week content/nav and normal detail respect system bars; subject WR final row fully visible after bottom flings | Final IME-open Add/Create passed at1×; short-height/landscape sheets remain untested |
+| Sheet stability | Height measured from calling window before dialog; Subject disables gesture handoff and offers48dp Close; header/footer fixed | Twelve bottom flings and reverse fling preserve exact title bounds; no former whole-sheet oscillation | Final tonal/80%height sheet passed exact WR-bottom/reverse retest; frame metrics remain separate from geometry evidence |
+| Interaction size | Native controls and explicit48dp minimum actions; class selection rows at least64–72dp | Normal-sized controls visually inspected; semantics expose labels and selected states | Calendar scaling now reserves48dp after the event gap, capped at200dp/hour; meetings shorter than15minutes use72dp-minimum list rows. Nine focused calendar tests passed, including50-minute and15-minute geometry plus the sub15-minute fallback; installed50-minute fixture measured48dp;15-minute and shorter cases have focused unit coverage only |
 
 Status: the spacing system is coherent with native Material 3 conventions, with intentional app-level choices. Full rendered compliance across every state is not yet claimed; the listed final-build checks and device gaps remain explicit.
 
-The compact margin follows [Android content structure guidance](https://developer.android.com/design/ui/mobile/guides/layout-and-content/content-structure). Earlier screenshots prove the preceding20dp layout only; the final16dp layout remains pending installed acceptance.
+The compact margin follows [Android content structure guidance](https://developer.android.com/design/ui/mobile/guides/layout-and-content/content-structure). Final Browse, Subject, detail, and Week captures verify the16dp compact gutter. Earlier light/2×Week captures use the preceding20dp layout and do not prove every final state.
 
 Calendar geometry verification: `WeeklyCalendarLayoutTest` passed9 tests on the final source; the new checks cover all durations15–180minutes, asserting48dp minimum after the2dp gap and a200dp/hour base ceiling. Meetings under15minutes use a separate72dp-minimum list. Runtime layout at increased font scale is still checked separately.
+
+
+## Final Husky acceptance: October 13–14, 2026
+
+Device: Pixel 8 Pro (Husky), 448dp portrait width. Version 3.0 / code 10, minSdk24, targetSdk36. Final icon APK installed October14 at00:22:57; the final parser-fix APK replaced it at00:30:27. All resumed checks used font scale1.0. Original `night=yes` was restored and verified; bedtime and Do Not Disturb were not modified.
+
+| Journey / view | Observed result | Evidence |
+| --- | --- | --- |
+| Final subject sheet | Twelve rapid flings reached WR, then reverse fling; title and footer stayed fixed. Header `[48,928][1152,1024]` and footer `[584,2782][958,2842]` were identical before/after; final WR fully visible. Tonal surface and16dp edges inspected. | `/private/tmp/irish-final-subject.mp4`, `/private/tmp/irish-final-subject-bottom.png` |
+| Final subject performance | 14/1051 current-deadline janky frames (1.33%), p95=14ms, p99=24ms. Debug recording observation, not a controlled benchmark or zero-jank claim. | `/private/tmp/irish-final-subject-gfx-after.txt` |
+| Browse expanded sections | CSE21311 shows both sections, Full/Open text, comfortable inner bottom padding plus outer divider gap. Submit dismissed keyboard. | `/private/tmp/irish-final-browse-expanded-dark.png` |
+| Add destination selection | Plan radios show current→result credits or Already in this schedule. Selection and separate New mode fit1× and2× before the pause. | `/private/tmp/irish-final-add-dark.png`, `/private/tmp/irish-final-add-dark-2x.png`, `/private/tmp/irish-final-add-new-2x.png` |
+| Add creation with keyboard | Name and Create and add remain fully above keyboard. Created QA Oct14 Add with CSE40657 and3 credits; keyboard/sheet dismissed and success snackbar appeared. | `/private/tmp/irish-resume-add-ime-dark.png` |
+| Standalone creation | Name and labeled semester selector fit above keyboard. Opening semester selection and returning retains typed name. Create immediately selects the new plan and opens class chooser; lecture+lab gives2 sections/4 credits after Done. | `/private/tmp/irish-resume-create-ime-dark.png`, `/private/tmp/irish-resume-chooser-light.png` (filename says light, pixels are dark; see limitation below) |
+| Structured prerequisites | CSE40657 shows CSE20312 AND (CSE30124 OR CSE44648) as explicit nested All of/One of groups; no duplicate/bare code. | `/private/tmp/irish-resume-prereq-dark.png` |
+| Linked alternative and return | CSE44648 opens Fall2026 related sheet with2 open Data Science sections (CRNs18421,21416), TBA times. Close works; opening section01 then system Back returns to CSE40657. | `/private/tmp/irish-resume-related-dark.png`, `/private/tmp/irish-resume-related-return.png` |
+| Final Week | Five weekdays fit. Lecture9:25–10:15 and lab17:00–17:50 align to the grid; event bounds are144px tall at3px/dp =48dp. Tapping lecture opens details; Back returns to plan. | `/private/tmp/irish-resume-week.png` |
+| Installed launcher icon | Native launcher shows recognizable pale open-book and lens on ink-blue adaptive background. Actual themed/monochrome launcher mode was not enabled; XML and mask previews cover that asset only. | `/private/tmp/irish-resume-launcher.png`, `/private/tmp/irish-icon-review/icon-preview-final.png` |
+| QA cleanup | Deleted only QA Oct14 Add and QA Oct14 Create, then removed CSE40657 saved by this test. Original UX Fall A / copy and ACCT20100, CSE21311, CSE20311 saved records remain. | `/private/tmp/irish-resume-clean-plans.png`, `/private/tmp/irish-clean-saved.xml` |
+
+### Explicit remaining limits
+
+- Final light-theme attempt was overridden by active bedtime appearance: `mNightMode=no` but `mAttentionModeThemeOverlay=1001` and `mComputedNightMode=true`. The supported shell interface has no attention-overlay reset/restore command. No bedtime schedule, DND, or undocumented service call was changed. Files named `irish-resume-create-light.png` and `irish-resume-chooser-light.png` show dark pixels and are **not** light-mode evidence.
+- Earlier valid light and2×Week captures remain historical evidence; final standalone Create/requirements/filter2× and final light surfaces are not fully accepted. User-requested font1.0 was preserved after resuming.
+- Runtime TalkBack speech, actual WorkManager notification delivery, API24 device behavior, tablet/landscape layout, live15-minute event fixture, and enabled monochrome launcher presentation were not tested.
+- The earlier attempted `irish-final-add-new-ime-2x.png` captured another app after user interaction; it is excluded from app QA evidence. The successful keyboard-open check is the October14 normal-font capture above.
+
+
+Final parser-build smoke: after the00:30:27 install, CSE40657 still renders the same nested All of/One of structure. Tapping CSE44648 loads the same two Fall2026 sections; system Back dismisses the sheet. Evidence: `/private/tmp/irish-final-parser-prereq.png`, `/private/tmp/irish-final-parser-related.png`, and `/private/tmp/irish-final-parser-related.xml`. Final font scale1.0 and night=yes verified. Device released after this narrow smoke; no production files changed during device QA.

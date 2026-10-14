@@ -3,6 +3,7 @@ package com.iheanyiekechukwu.irishsearch
 import java.util.Locale
 
 internal data class CourseReference(val range: IntRange, val code: String)
+internal data class CourseReferenceLine(val text: String, val references: List<CourseReference>)
 
 private val courseCodeCandidate = Regex(
     "\\b(?:([A-Z]{1,8})\\s+)?(\\d{4,5}[A-Z]?)\\b",
@@ -50,6 +51,31 @@ internal fun courseReferences(text: String, subjects: Set<String>): List<CourseR
             next = range.last + 1
         }
     }
+
+/** Scans continued lists together, then keeps each rendered line's reference ranges local. */
+internal fun courseReferenceLines(text: String, subjects: Set<String>): List<CourseReferenceLine> = buildList {
+    val pending = mutableListOf<String>()
+    fun appendPending() {
+        val references = courseReferences(pending.joinToString("\n"), subjects)
+        var offset = 0
+        for (line in pending) {
+            val start = offset
+            offset += line.length + 1
+            add(CourseReferenceLine(line, references.filter {
+                // A reference spanning a line break cannot replace text inside just one line.
+                it.range.first >= start && it.range.last < start + line.length
+            }.map { it.copy(range = (it.range.first - start)..(it.range.last - start)) }))
+        }
+        pending.clear()
+    }
+    for (line in text.lines()) {
+        if (line.isBlank() || line.trimStart().startsWith('*')) {
+            appendPending()
+            if (line.isNotBlank()) add(CourseReferenceLine(line, emptyList()))
+        } else pending += line
+    }
+    appendPending()
+}
 
 internal sealed interface CourseRequirementExpression {
     data class Course(val code: String, val markedWithAsterisk: Boolean = false) : CourseRequirementExpression

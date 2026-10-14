@@ -54,6 +54,29 @@ class RequirementParsingTest {
         assertEquals('*', source[references[1].range.last + 1])
     }
 
+    @Test fun renderedLinesKeepInheritedLinksAcrossHtmlBreaksAndPreserveFootnotes() {
+        val source = PathRequirements.fromHtml("""
+            <p class="prereq">CSE 10001 or<br/>10101<sup>*</sup><br/>
+            <sup>*</sup> May be taken concurrently.</p>
+        """).prerequisites
+        assertNull(parseCourseRequirement(source, setOf("CSE")))
+        val lines = courseReferenceLines(source, setOf("CSE"))
+        assertEquals(listOf("CSE 10001 or", "10101*", "* May be taken concurrently."), lines.map { it.text })
+        assertEquals(listOf(listOf("CSE 10001"), listOf("CSE 10101"), emptyList<String>()),
+            lines.map { line -> line.references.map { it.code } })
+        assertEquals("10101", lines[1].text.substring(lines[1].references.single().range))
+        assertEquals('*', lines[1].text[lines[1].references.single().range.last + 1])
+    }
+
+    @Test fun renderedLinesResetInheritedSubjectsAtBlankLinesProseAndFootnotes() {
+        val source = "CSE 10001 or\n10101\n\n20232\nCSE 20311 or\nDepartment approval required.\n20133\n" +
+            "CSE 30124 or\n* May be taken concurrently.\n44648"
+        val lines = courseReferenceLines(source, setOf("CSE"))
+        assertEquals(source.lines().filter { it.isNotBlank() }, lines.map { it.text })
+        assertEquals(listOf("CSE 10001", "CSE 10101", "CSE 20311", "CSE 30124"),
+            lines.flatMap { line -> line.references.map { it.code } })
+    }
+
     @Test fun inheritanceRestoresTheOuterSubjectAfterParentheses() {
         val source = "CSE 10001 or (MATH 10850 and 10860) or 10101"
         assertEquals(listOf("CSE 10001", "MATH 10850", "MATH 10860", "CSE 10101"),
