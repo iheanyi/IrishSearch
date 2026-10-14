@@ -24,6 +24,8 @@ app/build/
 *.aab
 *.jks
 *.keystore
+*.p12
+signing-credentials.json
 keystore.properties
 
 # Eclipse project files
